@@ -1,2 +1,2 @@
 # Language-detection
-Language detector with feature extraction using Whisper AI
+Custom Language Classifier with Whisper-based ASR

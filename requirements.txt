@@ -1,0 +1,5 @@
+openai-whisper==20240930
+torch
+scikit-learn
+numpy
+pandas

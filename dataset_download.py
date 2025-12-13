@@ -152,5 +152,5 @@ def validate_data():
 
 download_common_voice_if_needed()
 extract_if_needed()
-validated_data = validate_data()
+validate_data()
 

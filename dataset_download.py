@@ -71,8 +71,6 @@ def extract_if_needed():
 
 
 
-
-
 def validate_data():
     BASE_DIR = Path(__file__).resolve().parent
     CV_BASE = BASE_DIR / "common_voice_pl"

@@ -1,7 +1,7 @@
 # Language-detection
 Custom Language Classifier with Whisper-based ASR
 
-
+## Bielik implementation
 https://ollama.com/mwiewior/bielik
 
 ## Configuration

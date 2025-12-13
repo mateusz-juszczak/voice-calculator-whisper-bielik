@@ -1,9 +1,9 @@
 import requests
 import os
 import tarfile
-import pandas as pd
-from pathlib import Path
 from dotenv import load_dotenv
+from pathlib import Path
+import pandas as pd
 
 load_dotenv()
 API_KEY = os.getenv("COMMON_VOICE_API_KEY")
@@ -70,34 +70,89 @@ def extract_if_needed():
     print("[INFO] Rozpakowywanie zakończone.")
 
 
+
+
+
 def validate_data():
     BASE_DIR = Path(__file__).resolve().parent
+    CV_BASE = BASE_DIR / "common_voice_pl"
 
-    validated_path = (
-        BASE_DIR
-        / "common_voice_pl"
-        / "cv-corpus-23.0-2025-09-05"
-        / "pl"
-        / "validated.tsv"
+    cv_dir = next(CV_BASE.glob("cv-corpus-*"))
+    validated_path = cv_dir / "pl" / "validated.tsv"
+
+    df = pd.read_csv(
+        validated_path,
+        sep="\t",
+        usecols=["path", "sentence"],
+        low_memory=False
     )
 
-    df = pd.read_csv(validated_path, sep="\t")
+    # ===== NORMALIZACJA =====
+    def normalize(s: str) -> str:
+        return (
+            str(s)
+            .split("\t")[0]
+            .replace("\n", " ")
+            .replace("\r", " ")
+            .lower()
+            .strip()
+        )
 
-    math_keywords = [
-        "plus", "minus", "razy", "równa",
-        "podziel", "pierwiastek", "procent"
+    df["sentence_norm"] = df["sentence"].apply(normalize)
+
+    # ===== OPERATORY MATEMATYCZNE =====
+    MATH_OPERATORS = [
+        "plus", "minus", "razy", "podziel", "dzielone",
+        "równa się", "równe", "pierwiastek"
     ]
 
-    def is_math(sentence):
-        s = str(sentence).lower()
-        return any(k in s for k in math_keywords)
+    # ===== LICZBY (SŁOWNIE + RDZENIE) =====
+    NUMBER_WORDS = [
+        "zero", "jeden", "dwa", "trzy", "cztery", "pięć",
+        "sześć", "siedem", "osiem", "dziewięć",
+        "dziesięć", "naście", "dzieścia", "dzieści",
+        "sto", "tysiąc"
+    ]
 
-    math_df = df[df["sentence"].apply(is_math)]
+    # ===== DETEKCJA + POWÓD =====
+    def detect_math_reasons(sentence: str):
+        reasons = []
 
-    print(f"Znaleziono {len(math_df)} nagrań matematycznych")
+        for op in MATH_OPERATORS:
+            if op in sentence:
+                reasons.append(f"operator:{op}")
 
+        for num in NUMBER_WORDS:
+            if num in sentence:
+                reasons.append(f"number:{num}")
+
+        return reasons
+
+    # ===== FILTR =====
+    df["math_reasons"] = df["sentence_norm"].apply(detect_math_reasons)
+    filtered_df = df[df["math_reasons"].apply(len) > 0].copy()
+    filtered_df.reset_index(drop=True, inplace=True)
+
+    # ===== KOLUMNY WYJŚCIOWE =====
+    final_df = filtered_df[["path", "sentence", "math_reasons"]]
+    final_df["is_math"] = ""
+
+    # zamień listę powodów na czytelny string
+    final_df["notes"] = final_df["math_reasons"].apply(
+        lambda reasons: ",".join(reasons)
+    )
+
+    final_df = final_df.drop(columns=["math_reasons"])
+
+    # ===== ZAPIS =====
+    out_path = BASE_DIR / "math_test_candidates.csv"
+    final_df.to_csv(out_path, index=False, sep=",")
+
+    print("Zapisano tylko nagrania z elementami matematycznymi:")
+    print(out_path)
+    print(f"   Liczba rekordów: {len(final_df)}")
 
 download_common_voice_if_needed()
 extract_if_needed()
-validate_data()
+validated_data = validate_data()
 

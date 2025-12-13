@@ -4,4 +4,6 @@ scikit-learn
 numpy
 pandas
 ollama
+requests
+tarfile
 

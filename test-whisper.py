@@ -15,9 +15,7 @@ result = model.transcribe(audio_path, language="pl")
 result_whisper = result["text"]
 print("WHISPER: " + result_whisper)
 
-
-
-result_whisper = "5 plus 2 razy 7"
+# result_whisper = "5 plus 2 razy 7"
 
 response = ollama.generate(
     model='mwiewior/bielik',

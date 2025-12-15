@@ -37,6 +37,7 @@ def bielik_calculation(prompt: str):
         prompt=prompt
     )["response"]
 
+    #jako, że bielik jest gadatliwy, to bierzemy liczbę, która pojawia się na końcu jego wypocin - czyli nasz wynik
     numbers = re.findall(r"-?\d+(?:\.\d+)?", response)
 
     if not numbers:

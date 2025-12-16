@@ -6,6 +6,9 @@ import pandas as pd
 from pathlib import Path
 import ollama
 from tabulate import tabulate
+import spacy
+nlp = spacy.load("pl_core_news_lg")
+
 
 # ======================================================
 # TEXT NORMALIZATION
@@ -14,6 +17,109 @@ from tabulate import tabulate
 def remove_trailing_dot(text: str) -> str:
     """Usuwa kropkę na końcu zdania"""
     return text.rstrip().rstrip(".")
+
+
+
+import spacy
+
+nlp = spacy.load("pl_core_news_lg")
+
+
+def polish_text_to_math_expression(text: str) -> str:
+    """
+    Zamienia polski tekst matematyczny na poprawne wyrażenie matematyczne.
+    Obsługuje:
+    - dowolną długość równania
+    - duże liczby (tysiące, miliony)
+    - odmianę przez przypadki
+    - wiele operatorów
+    - liczby ujemne i dziesiętne
+    """
+
+    doc = nlp(text.lower())
+    lemmas = [token.lemma_ for token in doc]
+
+    numbers = {
+        "zero": 0, "jeden": 1, "dwa": 2, "trzy": 3, "cztery": 4,
+        "pięć": 5, "sześć": 6, "siedem": 7, "osiem": 8, "dziewięć": 9,
+        "dziesięć": 10, "jedenaście": 11, "dwanaście": 12,
+        "trzynaście": 13, "czternaście": 14, "piętnaście": 15,
+        "szesnaście": 16, "siedemnaście": 17,
+        "osiemnaście": 18, "dziewiętnaście": 19,
+        "dwadzieścia": 20, "trzydzieści": 30,
+        "czterdzieści": 40, "pięćdziesiąt": 50,
+        "sześćdziesiąt": 60, "siedemdziesiąt": 70,
+        "osiemdziesiąt": 80, "dziewięćdziesiąt": 90,
+        "sto": 100, "dwieście": 200, "trzysta": 300,
+        "czterysta": 400, "pięćset": 500, "sześćset": 600,
+        "siedemset": 700, "osiemset": 800, "dziewięćset": 900,
+    }
+
+    multipliers = {
+        "tysiąc": 1_000,
+        "milion": 1_000_000
+    }
+
+    operators = {
+        "plus": "+", "dodać": "+", "dodawać": "+",
+        "minus": "-", "odjąć": "-",
+        "razy": "*", "pomnożyć": "*",
+        "podzielić": "/", "przez": "/"
+    }
+
+    decimal_words = {"przecinek", "kropka"}
+    negative_words = {"minus"}
+
+    expression = []
+    current = 0
+    total = 0
+    decimal = ""
+    is_decimal = False
+    negative = False
+
+    def flush_number():
+        nonlocal current, total, decimal, is_decimal, negative
+        if current == 0 and total == 0 and not decimal:
+            return
+        value = total + current
+        if decimal:
+            value = float(f"{value}.{decimal}")
+        if negative:
+            value = -value
+            negative = False
+        expression.append(str(value))
+        current = total = 0
+        decimal = ""
+        is_decimal = False
+
+    for lemma in lemmas:
+        if lemma in negative_words and not current:
+            negative = True
+
+        elif lemma in numbers:
+            current += numbers[lemma]
+
+        elif lemma in multipliers:
+            if current == 0:
+                current = 1
+            total += current * multipliers[lemma]
+            current = 0
+
+        elif lemma in decimal_words:
+            is_decimal = True
+
+        elif is_decimal and lemma in numbers:
+            decimal += str(numbers[lemma])
+
+        elif lemma in operators:
+            flush_number()
+            expression.append(operators[lemma])
+
+    flush_number()
+    return " ".join(expression)
+
+
+# df["calculated_solution"] = df["math_expression"].apply(eval_calculation)
 
 # ======================================================
 # WHISPER CONFIGURATION
@@ -60,6 +166,8 @@ df = pd.read_csv(
     sep=",",
     usecols=["path", "correct_transcription", "correct_solution"],
     low_memory=False
+
+
 )
 
 
@@ -77,10 +185,15 @@ for _, row in df.iterrows():
 
     bielik_result = bielik_calculation(whisper_text)
 
+
+
     results.append({
         "whisper_transcription": whisper_text,
+        "whisper_transcription_math": polish_text_to_math_expression(whisper_text),
         "correct_transcription": row["correct_transcription"],
-        "bielik_solution": bielik_result,
+        "correct_transcritpion_math": polish_text_to_math_expression(row["correct_transcription"]),
+        "bielik_solution": bielik_calculation(whisper_text),
+        "bielik_ground_truth_solution": bielik_calculation(row["correct_transcription"]),
         "correct_solution": row["correct_solution"]
     })
 

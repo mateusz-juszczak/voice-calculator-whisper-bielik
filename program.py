@@ -10,9 +10,8 @@ import spacy
 nlp = spacy.load("pl_core_news_lg")
 
 
-# ======================================================
+
 # TEXT NORMALIZATION
-# ======================================================
 
 def remove_trailing_dot(text: str) -> str:
     """Usuwa kropkę na końcu zdania"""
@@ -25,7 +24,7 @@ import spacy
 nlp = spacy.load("pl_core_news_lg")
 
 
-def polish_text_to_math_expression(text: str) -> str:
+def polish_text_to_math_expression(text: str) -> str: #not working yet
     """
     Zamienia polski tekst matematyczny na poprawne wyrażenie matematyczne.
     Obsługuje:
@@ -121,9 +120,8 @@ def polish_text_to_math_expression(text: str) -> str:
 
 # df["calculated_solution"] = df["math_expression"].apply(eval_calculation)
 
-# ======================================================
+
 # WHISPER CONFIGURATION
-# ======================================================
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = whisper.load_model("base", device=device)
@@ -132,9 +130,8 @@ def whisper_transcribe(audio_path: str) -> str:
     return model.transcribe(audio_path, language="pl")["text"].strip()
 
 
-# ======================================================
+
 # BIELIK CONFIGURATION
-# ======================================================
 
 def bielik_calculation(prompt: str):
     response = ollama.generate(
@@ -153,9 +150,8 @@ def bielik_calculation(prompt: str):
     return float(value) if "." in value else int(value)
 
 
-# ======================================================
+
 # DATA LOADING
-# ======================================================
 
 BASE_DIR = Path(__file__).resolve().parent
 REC_BASE = BASE_DIR / "recordings"
@@ -166,14 +162,9 @@ df = pd.read_csv(
     sep=",",
     usecols=["path", "correct_transcription", "correct_solution"],
     low_memory=False
-
-
 )
 
-
-# ======================================================
 # PROCESSING LOOP
-# ======================================================
 
 results = []
 
@@ -198,9 +189,8 @@ for _, row in df.iterrows():
     })
 
 
-# ======================================================
+
 # RESULTS AS DATAFRAME
-# ======================================================
 
 results_df = pd.DataFrame(results)
 
@@ -212,8 +202,6 @@ print(tabulate(
 ))
 
 
-# ======================================================
-# OPTIONAL: SAVE TO CSV
-# ======================================================
 
+# SAVE TO CSV
 # results_df.to_csv(BASE_DIR / "results.csv", index=False)

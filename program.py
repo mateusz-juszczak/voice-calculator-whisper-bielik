@@ -7,6 +7,9 @@ from pathlib import Path
 import ollama
 from tabulate import tabulate
 import spacy
+from jiwer import wer
+
+# ======================================================
 nlp = spacy.load("pl_core_news_lg")
 
 
@@ -17,12 +20,6 @@ nlp = spacy.load("pl_core_news_lg")
 def remove_trailing_dot(text: str) -> str:
     """Usuwa kropkę na końcu zdania"""
     return text.rstrip().rstrip(".")
-
-
-
-import spacy
-
-nlp = spacy.load("pl_core_news_lg")
 
 
 def polish_text_to_math_expression(text: str) -> str:
@@ -129,9 +126,12 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model = whisper.load_model("base", device=device)
 
 def whisper_transcribe(audio_path: str) -> str:
-    return model.transcribe(audio_path, language="pl")["text"].strip()
+    transcription = model.transcribe(audio_path, language="pl")["text"].strip()
+    return transcription
 
-
+def wer_calculation(expression:str, transcription: str):
+    return wer(expression, transcription)
+    
 # ======================================================
 # BIELIK CONFIGURATION
 # ======================================================
@@ -166,8 +166,6 @@ df = pd.read_csv(
     sep=",",
     usecols=["path", "correct_transcription", "correct_solution"],
     low_memory=False
-
-
 )
 
 

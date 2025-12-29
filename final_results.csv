@@ -1,0 +1,5 @@
+original_path,whisper_text,bielik_expression,calculated_result,ground_truth_solution
+recording1.wav,"Pięćdziesiątych, razy dwa",<s>   50 * 2,100.0,1
+recording2.wav,"20 dzielony na 2, minus 5",<s>  (20 / 2) - 5,5.0,5
+recording3.wav,20 dodać 30,<s>  20 + 30,50.0,50
+recording4.wav,5 plus 2 razy 7,<s>  5 + 2*7,19.0,19

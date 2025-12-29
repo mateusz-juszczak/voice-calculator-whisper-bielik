@@ -30,3 +30,4 @@ reports_tmp/
 .whisper/
 .cache/
 recordings.zip
+.wenv/

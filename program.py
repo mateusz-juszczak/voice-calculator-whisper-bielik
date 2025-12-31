@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-
+'''
 SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE")
 FOLDER_ID = os.getenv("GOOGLE_DRIVE_FOLDER_ID")
 OUTPUT_DIR = os.getenv("GOOGLE_DRIVE_OUTPUT_DIR", "google_drive_dataset")
@@ -23,7 +23,7 @@ OUTPUT_DIR = os.getenv("GOOGLE_DRIVE_OUTPUT_DIR", "google_drive_dataset")
 if not SERVICE_ACCOUNT_FILE or not FOLDER_ID:
     raise RuntimeError("Brak zmiennych środowiskowych GOOGLE_SERVICE_ACCOUNT_FILE lub GOOGLE_DRIVE_FOLDER_ID")
 
-
+    
 def download_drive_folder_if_needed():
     creds = service_account.Credentials.from_service_account_file(
         SERVICE_ACCOUNT_FILE,
@@ -73,7 +73,7 @@ def download_drive_folder_if_needed():
 
     print("[INFO] Pobieranie folderu zakończone.")
 
-
+'''
 
 # ======================================================
 # KONFIGURACJA MODELI

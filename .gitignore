@@ -34,3 +34,4 @@ reports_tmp/
 .cache/
 recordings.zip
 .wenv/
+token.json

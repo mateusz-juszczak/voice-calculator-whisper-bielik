@@ -6,6 +6,7 @@
 .env
 *.env
 credentials.json
+token.json
 
 # Downloaded datasets (do not version)
 Common_Voice_PL.tar.gz
@@ -33,3 +34,4 @@ reports_tmp/
 .cache/
 recordings.zip
 .wenv/
+token.json

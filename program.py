@@ -1,96 +1,71 @@
 import os
 import re
-import io
 import math
+import time
+import tempfile
+import numpy as np
 import pandas as pd
+import sounddevice as sd
+import soundfile as sf
+import keyboard
+import ollama
 from pathlib import Path
 from tabulate import tabulate
-import ollama
 from faster_whisper import WhisperModel
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload
-from tqdm import tqdm
 from dotenv import load_dotenv
-
 
 load_dotenv()
 
 # ======================================================
-# KONFIGURACJA MODELI
+# KONFIGURACJA
 # ======================================================
+SAMPLE_RATE = 16000
+RECORD_SECONDS = 5
 
-print("[INFO] Ładowanie modelu Whisper (CPU/int8)...")
-# Używamy faster-whisper na CPU.
-whisper_model = WhisperModel("base", device="cpu", compute_type="int8")
+WHISPER_MODEL = "base"
+OLLAMA_MODEL = "mwiewior/bielik"
 
-# Nazwa modelu w Ollama (musi być zgodna z 'ollama list')
-OLLAMA_MODEL = "mwiewior/bielik" 
+print("[INFO] Ładowanie Whispera (CPU/int8)...")
+whisper_model = WhisperModel(
+    WHISPER_MODEL,
+    device="cpu",
+    compute_type="int8"
+)
 
 # ======================================================
-# NARZĘDZIA POMOCNICZE
+# NARZĘDZIA
 # ======================================================
 
 def remove_trailing_dot(text: str) -> str:
-    """Usuwa kropkę na końcu zdania."""
-    if not text: return ""
     return text.rstrip().rstrip(".")
 
 def calculate_safe(expression: str):
-    """
-    Inteligentne obliczanie, które radzi sobie z 'śmieciami' od LLMa.
-    """
     if not expression:
-        return None
-        
-    allowed_names = {"math": math, "sqrt": math.sqrt, "pow": math.pow, "abs": abs}
-    
+        return "BŁĄD"
+    allowed = {"sqrt": math.sqrt, "pow": math.pow, "abs": abs}
     try:
-        # 1. Usuwamy znaki specjalne modelu (<s>, </s>)
-        clean_expr = expression.replace("<s>", "").replace("</s>", "")
-        
-        # 2. Jeśli model zwrócił "x = 2+2", bierzemy tylko to co po prawej stronie "="
-        if "=" in clean_expr:
-            clean_expr = clean_expr.split("=")[-1]
-            
-        # 3. Usuwamy wszelkie litery (np. "Result"), zostawiamy tylko matematykę
-        # To Regex: zostaw tylko cyfry, kropki, nawiasy i operatory
-        # Uwaga: usuwa też "math.sqrt", więc musimy być ostrożni.
-        # Zamiast usuwać litery, po prostu usuńmy popularne "śmieci":
-        clean_expr = clean_expr.replace("Result", "").replace("wynik", "").strip()
-
-        # 4. Obliczenie
-        result = eval(clean_expr, {"__builtins__": {}}, allowed_names)
-        
-        if isinstance(result, float):
-            return round(result, 2)
-        return result
-        
-    except Exception as e:
-        # Pokaż błąd w terminalu, żebyśmy wiedzieli co poprawić
-        # print(f"[DEBUG] Nie udało się obliczyć '{expression}' -> '{clean_expr}': {e}")
-        return "BŁĄD" # Zwracamy string, żeby tabela się nie sypała
+        expr = expression.replace("<s>", "").replace("</s>", "").strip()
+        if "=" in expr:
+            expr = expr.split("=")[-1]
+        expr = expr.replace("wynik", "").replace("Result", "").strip()
+        result = eval(expr, {"__builtins__": {}}, allowed)
+        return round(result, 2) if isinstance(result, float) else result
+    except Exception:
+        return "BŁĄD"
 
 # ======================================================
-# GŁÓWNE FUNKCJE LOGICZNE
+# WHISPER
 # ======================================================
 
-def whisper_transcribe_faster(audio_path: str) -> str:
-    """Transkrypcja audio -> tekst"""
-    if not os.path.exists(audio_path):
-        return ""
-    try:
-        segments, _ = whisper_model.transcribe(audio_path, language="pl")
-        text = " ".join([s.text for s in segments]).strip()
-        return text
-    except Exception as e:
-        print(f"[ERROR] Błąd Whispera: {e}")
-        return ""
+def whisper_transcribe(audio_path: str) -> str:
+    segments, _ = whisper_model.transcribe(audio_path, language="pl")
+    return " ".join(s.text for s in segments).strip()
+
+# ======================================================
+# BIELIK (ORYGINALNY PROMPT)
+# ======================================================
 
 def bielik_parse_to_math(text: str):
-    """
-    Zamienia tekst na kod, z wymuszeniem precyzji (temperature=0).
-    """
     system_prompt = (
         "Jesteś matematycznym parserem. Zamień polski tekst na wyrażenie matematyczne w Pythonie. "
         "Zasady:\n"
@@ -99,99 +74,208 @@ def bielik_parse_to_math(text: str):
         "3. NIE używaj znaku '='.\n"
         "4. Jeśli słyszysz liczebniki porządkowe (np. piątych), traktuj je jak ułamki lub liczby."
     )
-    
-    user_prompt = f"Tekst: {text}\nWyrażenie:"
-
     try:
         response = ollama.generate(
-            model=OLLAMA_MODEL, 
+            model=OLLAMA_MODEL,
             system=system_prompt,
-            prompt=user_prompt,
-            options={
-                "temperature": 0.0, # <--- KLUCZOWA ZMIANA: Model staje się deterministyczny
-                "num_predict": 50   # Ograniczamy długość wypowiedzi
-            }
+            prompt=f"Tekst: {text}\nWyrażenie:",
+            options={"temperature": 0.0, "num_predict": 50}
         )["response"]
 
-        # Wyciąganie kodu z ewentualnych bloków markdown
-        code_match = re.search(r"```(?:python)?(.*?)```", response, re.DOTALL)
-        if code_match:
-            expression = code_match.group(1).strip()
-        else:
-            expression = response.strip()
-            
-        return expression
-        
+        match = re.search(r"```(?:python)?(.*?)```", response, re.DOTALL)
+        return match.group(1).strip() if match else response.strip()
     except Exception as e:
-        print(f"[ERROR] Błąd Ollama: {e}")
+        print(f"[ERROR] Ollama błąd: {e}")
         return ""
 
 # ======================================================
-# GŁÓWNA PĘTLA PROGRAMU
+# WYBÓR AKTYWNEGO MIKROFONU
 # ======================================================
 
-def main():
+def choose_active_input_device():
+    while True:
+        devices = sd.query_devices()
+        default_index = sd.default.device[0]
+        input_devices = {}
+        for idx, d in enumerate(devices):
+            if d['max_input_channels'] > 0 and d['default_samplerate'] > 0:
+                if d['name'] not in input_devices:
+                    input_devices[d['name']] = {'index': idx, 'default': (idx == default_index)}
+
+        if not input_devices:
+            print("Nie wykryto aktywnego mikrofonu. Podłącz mikrofon i spróbuj ponownie.")
+            input("Naciśnij Enter, aby spróbować ponownie...")
+            continue
+
+        print("\nDostępne aktywne mikrofony:")
+        for i, (name, info) in enumerate(input_devices.items()):
+            mark = " (domyślny)" if info['default'] else ""
+            print(f"{i}: {name}{mark}")
+
+        try:
+            choice = int(input("Wybierz numer mikrofonu: "))
+            if 0 <= choice < len(input_devices):
+                selected_name = list(input_devices.keys())[choice]
+                selected_index = input_devices[selected_name]['index']
+                try:
+                    with sd.InputStream(samplerate=SAMPLE_RATE, channels=1, device=selected_index):
+                        pass
+                    print(f"Wybrano mikrofon: {selected_name}")
+                    return selected_index
+                except Exception as e:
+                    print(f"Nie można użyć mikrofonu: {e}")
+                    continue
+            else:
+                print("Niepoprawny numer, spróbuj ponownie.")
+        except ValueError:
+            print("Wpisz liczbę.")
+
+# ======================================================
+# PIPELINE AUDIO
+# ======================================================
+
+def process_audio(audio_path):
+    try:
+        text = whisper_transcribe(audio_path)
+        text = remove_trailing_dot(text)
+        print(f"[WHISPER] {text}")
+
+        expr = bielik_parse_to_math(text)
+        expr = expr.replace("<s>", "").replace("</s>", "").strip()
+        print(f"[BIELIK] {expr}")
+
+        result = calculate_safe(expr)
+        print(f"[WYNIK] {result}\n")
+    finally:
+        os.remove(audio_path)
+
+# ======================================================
+# TRYB CSV
+# ======================================================
+
+def process_csv():
     BASE_DIR = Path(__file__).resolve().parent
     REC_BASE = BASE_DIR / "recordings"
     CSV_PATH = REC_BASE / "recordings_data.csv"
 
     if not CSV_PATH.exists():
-        print(f"[BLAD] Nie znaleziono pliku: {CSV_PATH}")
+        print("Nie znaleziono recordings_data.csv")
         return
 
-    df = pd.read_csv(CSV_PATH, sep=",", low_memory=False)
-    
-    # Opcjonalnie: test na pierwszych 5 rekordach
-    # df = df.head(5)
-
+    df = pd.read_csv(CSV_PATH)
     results = []
-    print(f"[INFO] Przetwarzanie {len(df)} nagrań...")
 
     for i, row in df.iterrows():
         audio_path = REC_BASE / row["path"]
-        
         if not audio_path.exists():
             continue
 
-        print(f"[{i+1}/{len(df)}] Analiza: {row['path']}")
+        print(f"[{i+1}/{len(df)}] {row['path']}")
 
-        # 1. Transkrypcja
-        transcription = whisper_transcribe_faster(str(audio_path))
-        transcription = remove_trailing_dot(transcription)
+        text = whisper_transcribe(str(audio_path))
+        text = remove_trailing_dot(text)
 
-        # 2. Parsowanie (Bielik)
-        math_expr = bielik_parse_to_math(transcription)
-        
-        # 3. OBLICZENIE (To o co prosiłeś)
-        # Funkcja bierze string "2+2" i robi z niego liczbę 4
-        calc_result = calculate_safe(math_expr)
+        expr = bielik_parse_to_math(text)
+        expr = expr.replace("<s>", "").replace("</s>", "").strip()
+        calc = calculate_safe(expr)
 
         results.append({
-            "original_path": row["path"],
-            "whisper_text": transcription,
-            "bielik_expression": math_expr,
-            "calculated_result": calc_result,  # <-- Tu będzie liczba
+            "whisper_text": text,
+            "bielik_expression": expr,
+            "calculated_result": calc,
             "ground_truth_solution": row.get("correct_solution", "")
         })
 
-    # Tworzenie tabeli wyników
     results_df = pd.DataFrame(results)
-    
-    # Wyświetlenie w terminalu (tylko najważniejsze kolumny)
+
     print("\n=== WYNIKI ===")
     print(tabulate(
-        results_df[["whisper_text", "bielik_expression", "calculated_result"]],
+        results_df,
         headers="keys",
         tablefmt="grid",
-        showindex=False,
-        missingval="BŁĄD" # Wyświetli "BŁĄD" jeśli calc_result to None
+        showindex=False
     ))
-    
-    # Zapis do CSV
-    output_path = BASE_DIR / "final_results.csv"
-    results_df.to_csv(output_path, index=False)
-    print(f"\n[INFO] Zapisano wyniki w: {output_path}")
+
+    out = BASE_DIR / "final_results.csv"
+    results_df.to_csv(out, index=False)
+    print(f"\nZapisano: {out}")
+
+# ======================================================
+# STABILNA SESJA AUDIO
+# ======================================================
+
+def audio_session(device_index):
+    """
+    Sesja nagrywania: jeden InputStream na całą pętlę.
+    Każde nagranie czyste, ESC kończy sesję.
+    """
+    try:
+        with sd.InputStream(
+            samplerate=SAMPLE_RATE,
+            channels=1,
+            dtype="float32",
+            device=device_index
+        ) as stream:
+
+            while True:
+                print(f"\nNagrywanie (max {RECORD_SECONDS} s, wydaj dźwięk lub ESC kończy)")
+
+                frames = []
+                start = time.time()
+
+                while time.time() - start < RECORD_SECONDS:
+                    data, _ = stream.read(1024)
+                    if np.any(data):
+                        frames.append(data)
+                    if keyboard.is_pressed("esc"):
+                        print("Zakończono nagrywanie.")
+                        return
+                    time.sleep(0.01)
+
+                if not frames:
+                    print("Nic się nie nagrało, spróbuj ponownie...")
+                    continue
+
+                audio = np.concatenate(frames, axis=0)
+
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as f:
+                    sf.write(f.name, audio, SAMPLE_RATE)
+                    audio_path = f.name
+
+                process_audio(audio_path)
+
+                print("Naciśnij dowolny klawisz, aby nagrać kolejne zadanie lub ESC aby zakończyć.")
+                key = keyboard.read_key()
+                if key == "esc":
+                    print("Zakończono nagrywanie.")
+                    break
+
+    except Exception as e:
+        print(f"Błąd mikrofonu: {e}")
+        return
+
+# ======================================================
+# MAIN
+# ======================================================
+
+def main():
+    print("VOICE CALCULATOR – audio krokowy / CSV")
+
+    while True:
+        mode = input("Tryb (audio / csv): ").strip().lower()
+        if mode in ["audio", "csv"]:
+            break
+        print("Nieznany tryb, wpisz 'audio' lub 'csv'.")
+
+    if mode == "audio":
+        device_index = choose_active_input_device()
+        if device_index is None:
+            print("Koniec programu, brak działającego mikrofonu.")
+            return
+        audio_session(device_index)
+
+    elif mode == "csv":
+        process_csv()
 
 if __name__ == "__main__":
     main()
-    

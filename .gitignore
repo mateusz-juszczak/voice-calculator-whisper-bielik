@@ -14,6 +14,7 @@ data/
 datasets/
 audio/
 math_audio/
+eval/
 
 # Large audio / media files
 *.wav

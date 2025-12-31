@@ -7,15 +7,22 @@ from googleapiclient.http import MediaIoBaseDownload
 
 from config import DATA_SET_ID
 
-SCOPES = "https://www.googleapis.com/auth/drive.readonly"
+SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
+
+# === ŚCIEŻKI BEZWZGLĘDNE WZGLĘDEM PLIKU .PY ===
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CREDS_PATH = os.path.join(BASE_DIR, "credentials.json")
+TOKEN_PATH = os.path.join(BASE_DIR, "token.json")
+
 
 def get_drive():
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if os.path.exists(TOKEN_PATH):
+        creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
     else:
-        flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+        flow = InstalledAppFlow.from_client_secrets_file(CREDS_PATH, SCOPES)
         creds = flow.run_local_server(port=0)
-        with open('token.json', 'w') as token:
+
+        with open(TOKEN_PATH, 'w') as token:
             token.write(creds.to_json())
 
     return build('drive', 'v3', credentials=creds)
@@ -25,8 +32,8 @@ def download_data(folder_id, target="downloaded"):
     service = get_drive()
 
     results = service.files().list(
-        q=f"'{folder_id}' in parents", 
-        fields="files(id, name, mimeType, size)", 
+        q=f"'{folder_id}' in parents",
+        fields="files(id, name, mimeType, size)",
         pageSize=1000
     ).execute()
 
@@ -34,15 +41,16 @@ def download_data(folder_id, target="downloaded"):
     downloaded = 0
     skipped = 0
 
-    os.makedirs(target, exist_ok=True)
-    
+    target_path = os.path.join(BASE_DIR, target)
+    os.makedirs(target_path, exist_ok=True)
+
     print(f"Sprawdzam {len(files)} plików w chmurze...")
 
     for f in files:
         if f.get('mimeType') == 'application/vnd.google-apps.folder':
             continue
 
-        file_path = os.path.join(target, f['name'])
+        file_path = os.path.join(target_path, f['name'])
 
         if os.path.exists(file_path):
             skipped += 1
@@ -55,22 +63,26 @@ def download_data(folder_id, target="downloaded"):
                 done = False
                 while not done:
                     status, done = downloader.next_chunk()
-            
+
             downloaded += 1
-            print(".", end="", flush=True) 
-            
+            print(".", end="", flush=True)
+
         except Exception as e:
             print(f"\nBłąd pobierania {f['name']}: {e}")
 
     print(f"\nZakończono. Pobrano: {downloaded}, Pominięto (już istniejące): {skipped}")
-    return target
-    
-def sort_files(files):
-    recordings_data = [f for f in files if f.endswith('.wav')]
-    reference_data = [f for f in files if f.endswith('.csv')]
+    return target_path
 
+
+def sort_files(files):
+    recordings_data = [f for f in files if f.lower().endswith('.wav')]
+    reference_data = [f for f in files if f.lower().endswith('.csv')]
     return recordings_data, reference_data
 
-download_data(DATA_SET_ID, target="eval")
-files = os.listdir("eval")
+
+# === URUCHOMIENIE ===
+eval_path = download_data(DATA_SET_ID, target="eval")
+files = os.listdir(eval_path)
 wav_files, csv_files = sort_files(files)
+
+print(f"WAV: {len(wav_files)} | CSV: {len(csv_files)}")

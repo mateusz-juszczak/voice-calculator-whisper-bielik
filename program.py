@@ -15,65 +15,6 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-'''
-SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE")
-FOLDER_ID = os.getenv("GOOGLE_DRIVE_FOLDER_ID")
-OUTPUT_DIR = os.getenv("GOOGLE_DRIVE_OUTPUT_DIR", "google_drive_dataset")
-
-if not SERVICE_ACCOUNT_FILE or not FOLDER_ID:
-    raise RuntimeError("Brak zmiennych środowiskowych GOOGLE_SERVICE_ACCOUNT_FILE lub GOOGLE_DRIVE_FOLDER_ID")
-
-    
-def download_drive_folder_if_needed():
-    creds = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE,
-        scopes=["https://www.googleapis.com/auth/drive.readonly"]
-    )
-
-    service = build("drive", "v3", credentials=creds)
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-    print("[INFO] Pobieram listę plików z Google Drive...")
-
-    query = f"'{FOLDER_ID}' in parents and trashed=false"
-    results = service.files().list(
-        q=query,
-        fields="files(id, name, mimeType, size)"
-    ).execute()
-
-    files = results.get("files", [])
-
-    print(f"[INFO] Znaleziono {len(files)} plików.")
-
-    for file in files:
-        if file["mimeType"] == "application/vnd.google-apps.folder":
-            print(f"[WARN] Pomijam podfolder: {file['name']}")
-            continue
-
-        local_path = Path(OUTPUT_DIR) / file["name"]
-        if local_path.exists():
-            print(f"[SKIP] {file['name']} już istnieje.")
-            continue
-
-        print(f"[DOWNLOAD] {file['name']}")
-
-        request = service.files().get_media(fileId=file["id"])
-        fh = io.FileIO(local_path, "wb")
-        downloader = MediaIoBaseDownload(fh, request)
-
-        done = False
-        pbar = tqdm(total=int(file.get("size", 0)), unit="B", unit_scale=True)
-
-        while not done:
-            status, done = downloader.next_chunk()
-            if status:
-                pbar.update(int(status.resumable_progress - pbar.n))
-
-        pbar.close()
-
-    print("[INFO] Pobieranie folderu zakończone.")
-
-'''
 
 # ======================================================
 # KONFIGURACJA MODELI
@@ -253,4 +194,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    download_drive_folder_if_needed()
+    

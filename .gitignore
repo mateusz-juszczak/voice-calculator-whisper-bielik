@@ -5,6 +5,7 @@
 # API keys / secrets
 .env
 *.env
+credentials.json
 
 # Downloaded datasets (do not version)
 Common_Voice_PL.tar.gz

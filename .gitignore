@@ -6,6 +6,8 @@
 .env
 *.env
 credentials.json
+token.json
+*.json
 
 # Downloaded datasets (do not version)
 Common_Voice_PL.tar.gz

@@ -29,10 +29,10 @@ results/
 logs/
 outputs/
 reports_tmp/
+venv/
 
 # Whisper / ML cache
 .whisper/
 .cache/
 recordings.zip
-.wenv/
 token.json

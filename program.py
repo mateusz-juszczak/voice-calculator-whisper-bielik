@@ -13,6 +13,7 @@ from pathlib import Path
 from tabulate import tabulate
 from faster_whisper import WhisperModel
 from dotenv import load_dotenv
+import config
 
 load_dotenv()
 
@@ -22,14 +23,14 @@ load_dotenv()
 SAMPLE_RATE = 16000
 RECORD_SECONDS = 5
 
-WHISPER_MODEL = "base"
 OLLAMA_MODEL = "mwiewior/bielik"
 
-print("[INFO] Ładowanie Whispera (CPU/int8)...")
+print("[INFO] Ładowanie Whispera...")
 whisper_model = WhisperModel(
-    WHISPER_MODEL,
-    device="cpu",
-    compute_type="int8"
+    config.WHISPER_CONFIG["model_size"], 
+    device = config.WHISPER_CONFIG["device"], 
+    compute_type = config.WHISPER_CONFIG["compute_type"],
+    cpu_threads = config.WHISPER_CONFIG["cpu_threads"]
 )
 
 # ======================================================
@@ -58,7 +59,12 @@ def calculate_safe(expression: str):
 # ======================================================
 
 def whisper_transcribe(audio_path: str) -> str:
-    segments, _ = whisper_model.transcribe(audio_path, language="pl")
+    # Dodajemy parametr initial_prompt z configu
+    segments, _ = whisper_model.transcribe(
+        audio_path, 
+        language="pl",
+        initial_prompt=config.WHISPER_PROMPT
+    )
     return " ".join(s.text for s in segments).strip()
 
 # ======================================================
@@ -66,20 +72,15 @@ def whisper_transcribe(audio_path: str) -> str:
 # ======================================================
 
 def bielik_parse_to_math(text: str):
-    system_prompt = (
-        "Jesteś matematycznym parserem. Zamień polski tekst na wyrażenie matematyczne w Pythonie. "
-        "Zasady:\n"
-        "1. Zwróć WYŁĄCZNIE liczby i operatory (np. '2 + 2').\n"
-        "2. NIE używaj słów 'Result', 'wynik', 'równa się'.\n"
-        "3. NIE używaj znaku '='.\n"
-        "4. Jeśli słyszysz liczebniki porządkowe (np. piątych), traktuj je jak ułamki lub liczby."
-    )
+    
+    user_msg = config.USER_PROMPT_TEMPLATE.format(text=text)
+
     try:
         response = ollama.generate(
-            model=OLLAMA_MODEL,
-            system=system_prompt,
-            prompt=f"Tekst: {text}\nWyrażenie:",
-            options={"temperature": 0.0, "num_predict": 50}
+            model=config.BIELIK_CONFIG["model_name"], 
+            system=config.SYSTEM_PROMPT,  # <-- Prompt z configu
+            prompt=user_msg,
+            options=config.BIELIK_CONFIG["options"] # <-- Opcje (temperatura 0.0) z configu
         )["response"]
 
         match = re.search(r"```(?:python)?(.*?)```", response, re.DOTALL)
@@ -153,52 +154,107 @@ def process_audio(audio_path):
 # TRYB CSV
 # ======================================================
 
+
 def process_csv():
     BASE_DIR = Path(__file__).resolve().parent
-    REC_BASE = BASE_DIR / "recordings"
-    CSV_PATH = REC_BASE / "recordings_data.csv"
+    DATA_DIR = BASE_DIR / "eval"
+
+    # Szukamy konkretnie tego pliku
+    TARGET_FILE = "reference_data_bezpl_utf8.csv"
+    CSV_PATH = DATA_DIR / TARGET_FILE
 
     if not CSV_PATH.exists():
-        print("Nie znaleziono recordings_data.csv")
+        print(f"[BŁĄD] Nie znaleziono pliku: {CSV_PATH}")
+        # Awaryjnie szukamy innego csv
+        others = list(DATA_DIR.glob("*.csv"))
+        if others:
+            CSV_PATH = others[0]
+            print(f"[INFO] Używam innego znalezionego pliku: {CSV_PATH.name}")
+        else:
+            return
+
+    print(f"[INFO] Przetwarzam: {CSV_PATH.name}")
+
+    try:
+        # WCZYTYWANIE: Wymuszamy średnik jako separator
+        df = pd.read_csv(CSV_PATH, sep=',', encoding='utf-8', dtype=str)
+        
+        # 1. Normalizacja nagłówków (zamiana na małe litery i usunięcie spacji)
+        # Dzięki temu 'Path' zamieni się na 'path', a 'Reference_solution' na 'reference_solution'
+        df.columns = df.columns.str.lower().str.strip()
+        
+    except Exception as e:
+        print(f"[BŁĄD KRYTYCZNY] Nie udało się otworzyć CSV: {e}")
         return
 
-    df = pd.read_csv(CSV_PATH)
+    # Sprawdzenie czy mamy kluczową kolumnę 'path'
+    if "path" not in df.columns:
+        print("[BŁĄD] Plik CSV nie ma kolumny 'Path' (lub 'path').")
+        print(f"Znalezione kolumny: {list(df.columns)}")
+        return
+
     results = []
+    print(f"[INFO] Analiza {len(df)} wierszy...")
 
     for i, row in df.iterrows():
-        audio_path = REC_BASE / row["path"]
+        filename = str(row["path"]).strip()
+        
+        audio_path = DATA_DIR / filename
+        
         if not audio_path.exists():
+            # Opcjonalnie wyświetl błąd, jeśli pliku brakuje
+            # print(f"[MISSING] Brak pliku audio: {filename}")
             continue
 
-        print(f"[{i+1}/{len(df)}] {row['path']}")
+        print(f"[{i+1}/{len(df)}] {filename}")
 
-        text = whisper_transcribe(str(audio_path))
-        text = remove_trailing_dot(text)
+        # 1. Transkrypcja Whisper
+        whisper_text = whisper_transcribe(str(audio_path))
+        whisper_text = remove_trailing_dot(whisper_text)
 
-        expr = bielik_parse_to_math(text)
-        expr = expr.replace("<s>", "").replace("</s>", "").strip()
-        calc = calculate_safe(expr)
+        # 2. Parsowanie Bielik
+        bielik_expr = bielik_parse_to_math(whisper_text)
+        bielik_expr = bielik_expr.replace("<s>", "").replace("</s>", "").strip()
+        
+        # 3. Obliczenie wyniku
+        calc_result = calculate_safe(bielik_expr)
+
+        # Pobieranie poprawnego rozwiązania z CSV
+        # Szukamy kolumny 'reference_solution' (bo tak nazywa się w Twoim pliku)
+        ground_truth = row.get("reference_solution", "")
+        if pd.isna(ground_truth): 
+            ground_truth = ""
+        
+        # Opcjonalnie: Referencyjna transkrypcja też się przyda do porównań
+        ref_transcription = row.get("reference_transcription", "")
 
         results.append({
-            "whisper_text": text,
-            "bielik_expression": expr,
-            "calculated_result": calc,
-            "ground_truth_solution": row.get("correct_solution", "")
+            "File": filename,
+            "Whisper_Text": whisper_text,
+            "Bielik_Expr": bielik_expr,
+            "Calculated": calc_result,
+            "Target_Result": ground_truth,
+            "Target_Text": ref_transcription
         })
+
+    if not results:
+        print("[OSTRZEŻENIE] Brak wyników (sprawdź czy nazwy plików w CSV zgadzają się z plikami w folderze eval)")
+        return
 
     results_df = pd.DataFrame(results)
 
+    # Wyświetlanie tabeli (wybrane kolumny dla czytelności)
     print("\n=== WYNIKI ===")
     print(tabulate(
-        results_df,
+        results_df[["Whisper_Text", "Bielik_Expr", "Calculated", "Target_Result"]],
         headers="keys",
         tablefmt="grid",
         showindex=False
     ))
 
-    out = BASE_DIR / "final_results.csv"
-    results_df.to_csv(out, index=False)
-    print(f"\nZapisano: {out}")
+    out_path = BASE_DIR / "final_results.csv"
+    results_df.to_csv(out_path, index=False, sep=';') # Zapisujemy też ze średnikiem, żeby Excel łatwo otworzył
+    print(f"\n[SUKCES] Zapisano raport: {out_path}")
 
 # ======================================================
 # STABILNA SESJA AUDIO

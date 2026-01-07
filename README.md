@@ -67,5 +67,4 @@ Najczęstsze problemy
 
 Licencja
 --------
-Kod projektu: MIT
 Model Bielik: osobna licencja autora (pobierany lokalnie przez Ollama)

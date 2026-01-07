@@ -4,7 +4,7 @@ import torch
 DATA_SET_ID = "1urJYRBjo3TvXQlKnrZLXm-HglOlAUbpr"
 
 WHISPER_CONFIG = {
-    "model_size": "tiny",    
+    "model_size": "base",    
     "device": "cpu",    
     "compute_type": "int8",    
     "cpu_threads": 0
@@ -15,31 +15,63 @@ BIELIK_CONFIG = {
     "model_name": "mwiewior/bielik",    
     "options": {
         "temperature": 0.0,  # 0.0 = Model jest deterministyczny (nie zmyśla)
-        "num_predict": 100,  # Maksymalna długość odpowiedzi (tokens)
-        "top_k": 10,         # Ograniczenie losowości
-        "top_p": 0.9
+        "num_predict": 50,  # Maksymalna długość odpowiedzi (tokens)
+        "stop": ["Tekst:", "Zadanie:", "Przykład"]    }
     }
-}
 
 SYSTEM_PROMPT = (
-    "Jesteś matematycznym parserem. Twoim celem jest zamiana polskiego tekstu "
-    "na ścisłe wyrażenie matematyczne w języku Python.\n"
-    "ZASADY:\n"
-    "1. Zwracaj TYLKO kod (liczby i operatory).\n"
-    "2. Ignoruj słowa 'oblicz', 'wynik', 'równa się'.\n"
-    "3. Zamieniaj liczebniki słowne na cyfry (np. 'jeden' -> '1').\n"
-    "4. Obsługuj ułamki (np. 'pół' -> '0.5', 'jedna druga' -> '1/2').\n"
-    "5. Nie dodawaj żadnych komentarzy ani znaczników markdown."
+    "Jesteś matematycznym tłumaczem. Twoim zadaniem jest zamiana zaszumionego tekstu na wzór matematyczny. "
+    "Możesz używać symboli: +, -, *, /, ^ (potęga), √ (pierwiastek). "
+    "Nie musisz pisać kodu Python. Pisz po prostu wzór."
 )
 
 WHISPER_PROMPT = (
-    "To jest transkrypcja matematyczna. Przykłady: "
-    "jeden dodać dwa, trzy razy cztery, pięć odjąć sześć, "
-    "siedem podzielić przez osiem, dziewięć do kwadratu, "
-    "dziesięć do sześcianu, pierwiastek z liczby sto, jeden milion. "
-    "Zero przecinek pięć. Nawias otwórz dwa plus dwa nawias zamknij. "
-    "Wypisuj liczby cyframi lub słownie, ale bez zbędnych znaków interpunkcyjnych."
-)
+    "Przykłady liczb: 1234, 567, 1999, 2024, 10000, 1500, 100, 123456. "
+    "Wzory: 1200 + 34, 5000 / 10. "
+    "Zapisuj liczby cyframi: 200 (nie dwieście), 1000 (nie tysiąc)."
+    )
 
-USER_PROMPT_TEMPLATE = "Tekst wejściowy: {text}\nWyrażenie Python:"
+USER_PROMPT_TEMPLATE = """Zamień tekst na wzór.
 
+SŁOWNIK NAPRAWCZY:
+'krzy', 'krzyj' -> 3
+'pisztery', 'tery' -> 4
+'usmyj', 'usmej' -> 8
+'sześć sześć sześć', 'sześć ci', 'XVI' -> 16
+'siedem naście' -> 17
+'dwie ściu' -> 200
+'videon' -> 1000000
+'audiencie dm', 'o dźwięci', 'minu' -> -
+'dosyś cianu' -> ^3
+'dotać' -> +
+'jedną piątom' -> (1/5)
+'i pół' -> + 0.5
+
+PRZYKŁADY:
+Tekst: dwa dodać dwa
+Wzór: 2 + 2
+
+Tekst: tysiąc dwieście trzydzieści trzy plus jeden
+Wzór: 1233 + 1
+
+Tekst: cztery i pół razy sześć
+Wzór: 4.5 * 6
+
+Tekst: pierwiastek z szesnastu
+Wzór: √16
+
+Tekst: dwa do potęgi usmej
+Wzór: 2 ^ 8
+
+Tekst: trzy dosyś cianu
+Wzór: 3 ^ 3
+
+Tekst: dwadzieścia dzielone na jedną piątom
+Wzór: 20 / (1/5)
+
+Tekst: pięć audiencie dm
+Wzór: 5 - 7
+
+ZADANIE:
+Tekst: {text}
+Wzór:"""

@@ -1,72 +1,65 @@
 File;Whisper_Text;Bielik_Expr;Calculated;Target_Result;Target_Text
 HK_1.wav;Cztery i pół razy sześć;4.5 * 6;27.0;27;cztery i pol razy szesc
-HK_2.wav;Dwa razy osiem, dodać siedem;16 + 7;23;23;dwa razy osiem dodac siedem
-HK_3.wav;Krzy razy sześci;1.5;1.5;18;trzy razy szesc
-HK_4.wav;Pięć plus osiem;5 + 8;13;13;piec plus osiem
-HK_5.wav;Rzternaście plus siedemnaście;42;42;31;czternascie plus siedemnascie
-HK_6.wav;2-6-3-3;2-6-3-3;-10;0,86;dwadziescia szesc przez trzydziesci
-HK_7.wav;18 razy sześć;18 * 6;108;108;osiemnascie razy szesc
-HK_8.wav;Pięć odjąć zwanaście;5 - 12;-7;-7;piec odjąc dwanascie
-HK_9.wav;Cztery razy dwa plus osiem;16;16;16;cztery razy dwa plus osiem
-HK_10.wav;Sześć naście plus trzy, przez cztery;61 + 3, / 4;BŁĄD;16,75;szesnascie plus trzy przez cztery
-HK_11.wav;Dwa dodać cztery razy pięć;2 + 4 * 5;22;22;dwa dodac cztery razy piec
-HK_12.wav;Dwonaście razy trzy;12 * 3;36;36;dwanascie razy trzy
-HK_13.wav;Sześci dodać siedem;6 7;BŁĄD;13;szesc dodac siedem
-HK_14.wav;Trzy podzielony przez dwa;3 / 2;1.5;1,5;trzy podzielone przez dwa
-HK_15.wav;Pięć odjąć siedem;5 - 7;-2;-2;piec odjac siedem
-HK_16.wav;Dwa razy sześć na ścię;2 * 6;12;32;dwa razy szesnascie
+HK_2.wav;Dwa razy osiem dodać siedem;2 * 8 + 7;23;23;dwa razy osiem dodac siedem
+HK_3.wav;Trzy razy sześć;3 * 6;18;18;trzy razy szesc
+HK_4.wav;5 plus 8;5 + 8;13;13;piec plus osiem
+HK_5.wav;14 plus 17;14 + 17;31;31;czternascie plus siedemnascie
+HK_6.wav;26 przez 30;26 / 30;0.87;0,86;dwadziescia szesc przez trzydziesci
+HK_7.wav;18 razy 6;18 * 6;108;108;osiemnascie razy szesc
+HK_8.wav;5, 1212;5 + 1212;1217;-7;piec odjąc dwanascie
+HK_9.wav;Cztery razy dwa plus orszem;4 * 2 + 1;9;16;cztery razy dwa plus osiem
+HK_10.wav;16, 3, 3, 4;16 + 3 + 3 + 4;26;16,75;szesnascie plus trzy przez cztery
+HK_11.wav;2 dodać 4 razy 5;2 + (4 * 5);22;22;dwa dodac cztery razy piec
+HK_12.wav;12 razy trzy;12 * 3;36;36;dwanascie razy trzy
+HK_13.wav;Sześci dodać siedem;6 + 7;13;13;szesc dodac siedem
+HK_14.wav;3 podzielone przez 2;3 / 2;1.5;1,5;trzy podzielone przez dwa
+HK_15.wav;5. Odjąc 7;5 - 7;-2;-2;piec odjac siedem
+HK_16.wav;2x16;2 * 16;32;32;dwa razy szesnascie
 HK_17.wav;8 podzielone przez 3;8 / 3;2.67;2,66;osiem podzielone przez trzy
-HK_18.wav;40 minut z dwa razy sześć;0.666666666666667;0.67;28;czterdziesci minus dwa razy szesc
-HK_19.wav;Piędziesiąt cztery podzielone przez 17;54.0;54.0;3,17;piedziesiat cztery podzielone przez siedemnascie
-HK_20.wav;13 plus 14;27;27;27;trzynascie plus czternascie
-MJ_01.wav;Szczesności dodać osiem;8;8;24;szesnascie dodac osiem
-MJ_02.wav;Osiem plus pięć;8 + 5;13;13;osiem plus piec
-MJ_03.wav;Dziesięć odjąć cztery;10 - 4;6;6;dziesiec odjac cztery
-MJ_04.wav;Dwa ciścia, minospięci;2 - 5;-3;15;dwadziescia minus piec
-MJ_05.wav;Trzy razy sześć;18;18;18;trzy razy szesc
-MJ_06.wav;Po 4, pomnożyć przez dwa;4*2;8;8;cztery pomnożyc przez dwa
-MJ_07.wav;Twanaście, podzielić przez trzy;12 / 3;4.0;4;dwanascie podzielic przez trzy
-MJ_08.wav;Sto, dzielone przez dziesięć;100;100;10;sto dzielone przez dziesiec
-MJ_09.wav;Dwa przecinek pięć dodać jeden;2,5 + 1;(2, 6);3,5;dwa przecinek piec dodac jeden
-MJ_10.wav;Jesteś jeden dodać pięć z dziesiątych;1 + 5/10;1.5;1,5;jeden dodac piec dziesiatych
-MJ_11.wav;Siedem setnych razy dwa;7.01;7.01;0,14;siedem setnych razy dwa
-MJ_12.wav;Dwa i pół do do ciedem;2.5;2.5;3,5;dwa i pol dodac jeden
+HK_18.wav;40-2, 6;40 - 2, 6;BŁĄD;28;czterdziesci minus dwa razy szesc
+HK_19.wav;54 podzielone przez 17;54 / 17;3.18;3,17;piedziesiat cztery podzielone przez siedemnascie
+HK_20.wav;13, 14, 14;13 + 14 + 14;41;27;trzynascie plus czternascie
+MJ_01.wav;16 dodać 8;16 + 8;24;24;szesnascie dodac osiem
+MJ_02.wav;8, plus 5;8 + 5;13;13;osiem plus piec
+MJ_03.wav;10, odjąć 4;10 - 4;6;6;dziesiec odjac cztery
+MJ_04.wav;20-5;20 - 5;15;15;dwadziescia minus piec
+MJ_05.wav;Trzy razy sześć;3 * 6;18;18;trzy razy szesc
+MJ_06.wav;34, pomnozić przez dwa;34 * 2;68;8;cztery pomnożyc przez dwa
+MJ_07.wav;12, podzielić przez trzy;12 / 3;4.0;4;dwanascie podzielic przez trzy
+MJ_08.wav;100 dzielone przez 10;100 / 10;10.0;10;sto dzielone przez dziesiec
+MJ_09.wav;Dwa, przecinek 5 dodać 1;2 + 5/1 + 1;8.0;3,5;dwa przecinek piec dodac jeden
+MJ_10.wav;11, 5, 10;11 + 5 + 10;26;1,5;jeden dodac piec dziesiatych
+MJ_11.wav;700 razy 2;700 * 2;1400;0,14;siedem setnych razy dwa
+MJ_12.wav;Dwa i pół, dotać jeden;2.5 + 1;3.5;3,5;dwa i pol dodac jeden
 MJ_13.wav;Jedna druga, razy cztery;1/2 * 4;2.0;2;jedna druga razy cztery
-MJ_14.wav;Szyść czwarte, odjąć jedna czwarta;0.75;0.75;0,5;trzy czwarte odjac jedna czwarta
-MJ_15.wav;Pięć do kwadratu;5;5;25;piec do kwadratu
-MJ_16.wav;Trzy do sześcianu;3**3;27;8;trzy do szescianu
-MJ_17.wav;dwa, do potęgi usmyj;2**usmyj;BŁĄD;256;dwa do potegi osmej
-MJ_18.wav;Pierwiastek XVI;16;16;4;pierwiastek z szesnastu
-MJ_19.wav;Pierwiastek drugiego stopnia z dziewięciu;"import math
-
-result = math.sqrt(9)
-print(result)";BŁĄD;3;pierwiastek drugiego stopnia z dziewieciu
-MJ_20.wav;Pierwiastek trzeciego stopnia z ośmiu;"import math
-
-number = 8
-result = math.pow(number, 1/3)
-print(result)";BŁĄD;2;pierwiastek trzeciego stopnia z osmiu
-MJ_21.wav;Otwórz nawias dwa dotać dwa zamknij nawias razy dwa;[1 if 2 else 3 for i in range(2)];BŁĄD;8;otworz nawias dwa dodac dwa zamknij nawias razy dwa
-MJ_22.wav;Dwa dodać dwa, razy dwa;4;4;6;dwa dodac dwa razy dwa
-MJ_23.wav;Minus pięć doda dziesięć;-5 + 10;5;5;minus piec dodac dziesiec
-MJ_24.wav;Tysiąc 233 plus jeden;1234;1234;1234;tysiac dwiescie trzydziesci trzy plus jeden
-MJ_25.wav;Jeden milion podzielić przez tysiąc;1000000.0;1000000.0;1000;jeden milion podzielic przez tysiac
-OC_01.wav;14 minut sześć;0.25;0.25;8;czternascie minus szesc
-OC_02.wav;Osiem dodać, pięć;8 + 5;13;13;osiem dodac piec
-OC_03.wav;dwadzieścia, dzielony na jedną piątom;20.0, 4.0;(20.0, 4.0);100;dwadziescia dzielone na jedna piata
-OC_04.wav;Dodawanie cztery i 11;4 + 11;15;15;dodawanie cztery i jedenascie
-OC_05.wav;Dwa i pół dodać jeden przecinek trzy;2.5 + 1.3;3.8;3,8;dwa i pol dodac jeden przecinek trzy
-OC_06.wav;Cztery i osiemdziesiątych minus dwa i jednadziesiąta;4 + 80 - 2 - 1.1;80.9;2,7;cztery i osiem dziesiatych minus dwa i jedna dziesiata
-OC_07.wav;Trzy przecinek sześć, dzielone na zero przecinek sześć;3,6/0.6;(3, 10.0);6;trzy przecinek szesc dzielone na zero przecinek szesc
-OC_08.wav;Siedem dodać cztery razy dwa;7 + 4*2;15;15;siedem dodac cztery razy dwa
-OC_09.wav;Sześć minus dwa przecinek cztery, dzielone na zero przecinek sześć;4;4;2;szesc minus dwa przecinek cztery dzielone na zero przecinek szesc
-OC_10.wav;Trzy dodać dwa i pół nawiasie, razy dwa;5;5;11;trzy dodac dwa i pol w nawiasie razy dwa
-OC_11.wav;Trzy, razy, cztery minus jedna, pięta w nawiasie;3*4-1.5;10.5;11,4;trzy razy cztery minus jedna piata w nawiasie
-OC_12.wav;dwadzieścia minus sześć dzielone na trzy;20-6/3;18.0;18;dwadziescia minus szesc dzielone na trzy
-OC_13.wav;Tery to dać dwa;2;2;6;cztery dodac dwa
-OC_14.wav;Tysiąc osiemset, dzielone napięć;1800 / 10;180.0;360;tysiac osiemset dzielone na piec
-OC_15.wav;187 dzielone napięć dodać cztery minus 12;187 / napiec + 4 - 12;BŁĄD;352;tysiac osiemset dzielone na piec dodac cztery minus dwanascie
-OC_16.wav;I 12 tysięcy pięćset razy 14 tysięcy dwie ściu;12000.5 * 14000.8;168016600.4;163300000;jedenascie tysiecy piecset razy czternascie tysiecy dwiescie
-OC_17.wav;20 dodać 30;50;50;50;dwadziescia dodac trzydziesci
-OC_18.wav;Dwo 10 dzielony nad 2 minus 5;20 / (2 - 5);-6.67;5;dwadziescia dzielone na dwa minus piec
-OC_19.wav;Pięć dziesiątych razy dwa;0.5 * 2;1.0;1;piec dziesiatych razy dwa
+MJ_14.wav;234, odjąć 1-4;234 - (1 - 4);237;0,5;trzy czwarte odjac jedna czwarta
+MJ_15.wav;5 do kwadratu;5^2;25;25;piec do kwadratu
+MJ_16.wav;Trzy do prześcianu;3 ^ 3;27;8;trzy do szescianu
+MJ_17.wav;2 do potęgi 8;2 ^ 8;256;256;dwa do potegi osmej
+MJ_18.wav;Pierwiastek 16;√16;4.0;4;pierwiastek z szesnastu
+MJ_19.wav;Pierwiastek drugiego stopnia z ciewięciu;√9;3.0;3;pierwiastek drugiego stopnia z dziewieciu
+MJ_20.wav;Pierwiastek trzeciego stopnia z 8;2^(3/2);2.83;2;pierwiastek trzeciego stopnia z osmiu
+MJ_21.wav;Otwórz na wios 2, dotać 2, zamknij na wios razy 2;2 + 2 + 2;6;8;otworz nawias dwa dodac dwa zamknij nawias razy dwa
+MJ_22.wav;2 dodać 2 razy 2;2 + 2 + 2;6;6;dwa dodac dwa razy dwa
+MJ_23.wav;Minus 5 do 10;-5 + 10;5;5;minus piec dodac dziesiec
+MJ_24.wav;1233, plus 1;1233 + 1;1234;1234;tysiac dwiescie trzydziesci trzy plus jeden
+MJ_25.wav;Jeden videon podzielić przez tysiąc;1 / 1000;0.0;1000;jeden milion podzielic przez tysiac
+OC_01.wav;14-6;14 - 6;8;8;czternascie minus szesc
+OC_02.wav;8, dodać, 5;8 + 5;13;13;osiem dodac piec
+OC_03.wav;20, dzielony na jedną piątą;20 / (1/5);100.0;100;dwadziescia dzielone na jedna piata
+OC_04.wav;Dodawanie 4 i 11;4 + 11;15;15;dodawanie cztery i jedenascie
+OC_05.wav;Dwa i pół do dać jeden przecinek trzy;2.5 * 1 + 3;5.5;3,8;dwa i pol dodac jeden przecinek trzy
+OC_06.wav;4,80, minus 2,1, 10;480 - 21 - 10;449;2,7;cztery i osiem dziesiatych minus dwa i jedna dziesiata
+OC_07.wav;Trzy przecinek 6, dzielone na zero przecinek 6;3,6 / 0.6;6.0;6;trzy przecinek szesc dzielone na zero przecinek szesc
+OC_08.wav;Siedem, dodać 4x2;7 + (4 * 2);15;15;siedem dodac cztery razy dwa
+OC_09.wav;6, minus 2,4, dzielone na 0,6;6 - 2.4 / 0.6;2.0;2;szesc minus dwa przecinek cztery dzielone na zero przecinek szesc
+OC_10.wav;3 dodać 2,5 na wiasie, razy 2;3 + 2.5 * (1^2) * 2;8.0;11;trzy dodac dwa i pol w nawiasie razy dwa
+OC_11.wav;Trzy, razy, cztery minus jedna piąta w nawiasie;3 * (4 - (1/5));11.4;11,4;trzy razy cztery minus jedna piata w nawiasie
+OC_12.wav;20 minus 6 dzielone na 3;20 - 6 / 3;18.0;18;dwadziescia minus szesc dzielone na trzy
+OC_13.wav;Tery dodać dwa;4 + 2;6;6;cztery dodac dwa
+OC_14.wav;1800, dzielone na 5;1800 / 5;360.0;360;tysiac osiemset dzielone na piec
+OC_15.wav;1800 dzielone na 5, dodać 4 minus 12;1800 / 5 + (-12);348.0;352;tysiac osiemset dzielone na piec dodac cztery minus dwanascie
+OC_16.wav;I 11,500 razy 14,200;11,500 * 14,200;163.3;163300000;jedenascie tysiecy piecset razy czternascie tysiecy dwiescie
+OC_17.wav;20 dodać 30;20 + 30;50;50;dwadziescia dodac trzydziesci
+OC_18.wav;20, dzielony na 2, minus 5;20 / (2 - 5);-6.67;5;dwadziescia dzielone na dwa minus piec
+OC_19.wav;Pięćdziesiątych razy dwa;50 * 2;100;1;piec dziesiatych razy dwa

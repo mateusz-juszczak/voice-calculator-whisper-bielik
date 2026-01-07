@@ -41,17 +41,60 @@ def remove_trailing_dot(text: str) -> str:
     return text.rstrip().rstrip(".")
 
 def calculate_safe(expression: str):
-    if not expression:
+    # Zabezpieczenie przed pustym wejściem (NaN z pandasa lub pusty string)
+    if not expression or (isinstance(expression, float) and math.isnan(expression)):
         return "BŁĄD"
-    allowed = {"sqrt": math.sqrt, "pow": math.pow, "abs": abs}
+
+    # 1. Czyszczenie wstępne
+    expr = str(expression).lower().strip()
+    
+    # Usuwamy typowe "gadanie" modelu
+    expr = expr.replace("wynik:", "").replace("wzór:", "").replace("odpowiedź:", "")
+    expr = expr.replace("expression:", "").replace("code:", "")
+    
+    # Bierzemy tylko pierwszą linię (jeśli model dodał coś po enterze)
+    expr = expr.split("\n")[0]
+    
+    # Usuwamy znak równości (np. "2+2=")
+    expr = expr.replace("=", "").strip()
+
+    # 2. Tłumaczenie symboli matematycznych na Python
+    # Zamiana potęgowania (^ -> **)
+    expr = expr.replace("^", "**")
+    
+    # Zamiana przecinków na kropki (kluczowe dla ułamków w Polsce)
+    expr = expr.replace(",", ".")
+    
+    # Obsługa pierwiastków
+    # Zamiana symbolu √ na funkcję sqrt(
+    expr = expr.replace("√", "sqrt(")
+    # Zamiana math.sqrt na samo sqrt (żeby ujednolicić)
+    expr = expr.replace("math.sqrt", "sqrt")
+
+    # 3. Zamykanie nawiasów (Bielik czasem o tym zapomina)
+    open_count = expr.count("(")
+    close_count = expr.count(")")
+    if open_count > close_count:
+        expr += ")" * (open_count - close_count)
+
+    # 4. Definicja dozwolonych funkcji
+    allowed_names = {
+        "sqrt": math.sqrt,
+        "pow": math.pow,
+        "abs": abs,
+        "round": round
+    }
+
     try:
-        expr = expression.replace("<s>", "").replace("</s>", "").strip()
-        if "=" in expr:
-            expr = expr.split("=")[-1]
-        expr = expr.replace("wynik", "").replace("Result", "").strip()
-        result = eval(expr, {"__builtins__": {}}, allowed)
-        return round(result, 2) if isinstance(result, float) else result
+        # Próbujemy obliczyć
+        result = eval(expr, {"__builtins__": {}}, allowed_names)
+        
+        # Formatowanie wyniku (zaokrąglamy floaty do 2 miejsc)
+        if isinstance(result, (int, float)):
+            return round(result, 2)
+        return result
     except Exception:
+        # Jeśli mimo naprawy coś jest nie tak, zwracamy BŁĄD
         return "BŁĄD"
 
 # ======================================================

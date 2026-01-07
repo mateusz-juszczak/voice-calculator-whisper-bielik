@@ -73,9 +73,9 @@ class VoiceCalcGUI:
         self.paned = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
         self.paned.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        # --- PANEL LEWY (65%) ---
+        # --- PANEL LEWY ---
         left_panel = ttk.Frame(self.paned, padding="10")
-        self.paned.add(left_panel, weight=65)
+        self.paned.add(left_panel)
 
         # Instrukcja
         inst_frame = ttk.LabelFrame(left_panel, text=" 📖 INSTRUKCJA OBSŁUGI ", padding="15")
@@ -134,7 +134,7 @@ class VoiceCalcGUI:
         self.btn_main = tk.Button(left_panel, text="ŁADOWANIE MODELI...", font=("Arial", 18, "bold"), bg="#95a5a6", fg="white", height=2, state=tk.DISABLED, command=self.toggle_recording)
         self.btn_main.pack(fill=tk.X)
 
-        # --- PANEL PRAWY (HISTORIA 35%) ---
+        # --- PANEL PRAWY ---
         right_panel = ttk.Frame(self.paned, padding="10", width=420)
         self.paned.add(right_panel, weight=35)
         tk.Label(right_panel, text="📜 HISTORIA OPERACJI", font=("Arial", 10, "bold")).pack(anchor="w", pady=(0, 5))

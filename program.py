@@ -75,7 +75,7 @@ class VoiceCalcGUI:
 
         # --- PANEL LEWY ---
         left_panel = ttk.Frame(self.paned, padding="10")
-        self.paned.add(left_panel)
+        self.paned.add(left_panel, weight=65)
 
         # Instrukcja
         inst_frame = ttk.LabelFrame(left_panel, text=" 📖 INSTRUKCJA OBSŁUGI ", padding="15")

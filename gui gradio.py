@@ -136,10 +136,10 @@ with gr.Blocks(theme=green_theme, css=custom_css, title="Kalkulator głosowy") a
     with gr.Row():
         # --- PANEL LEWY (60%) ---
         with gr.Column(scale=60):
-            # Przywrócenie Instrukcji
+            # Instrukcja
             with gr.Column(elem_classes="instruction-box"):
                 gr.Markdown("""
-                ### 📖 INSTRUKCJA OBSŁUGI
+                ### INSTRUKCJA OBSŁUGI
                 1. Kliknij ikonę **mikrofonu** i wypowiedz działanie (np. *"250 razy 4 dodać 6"*).
                 2. Kliknij ikonę **STOP**, aby zakończyć nagrywanie.
                 3. Naciśnij zielony przycisk **OBLICZ WYNIK**, aby otrzymać odpowiedź.

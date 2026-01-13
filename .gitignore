@@ -29,9 +29,14 @@ logs/
 outputs/
 reports_tmp/
 
+
 # Whisper / ML cache
 .whisper/
 .cache/
 recordings.zip
 .wenv/
 token.json
+
+# trash
+__pycache__/
+.vscode/

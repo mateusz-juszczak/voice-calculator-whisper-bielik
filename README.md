@@ -1,60 +1,65 @@
-Bielik Voice Calculator
-=======================
+# Bielik Voice Calculator
 
-Profesjonalny kalkulator głosowy w Pythonie:
-- faster-whisper – rozpoznawanie mowy po polsku
-- Bielik (mwiewior/bielik) przez Ollama – parser matematyczny
-- Tkinter – GUI z miernikiem VU
+Prosty, ale potężny kalkulator głosowy w Pythonie, wykorzystujący nowoczesne narzędzia AI. Posiada przejrzysty interfejs webowy zbudowany w Gradio.
 
-Wymagania
----------
-- Python 3.10 – 3.12
-- Windows / Linux / macOS
-- Mikrofon
-- Minimum 8 GB RAM
+-   **Rozpoznawanie mowy:** `faster-whisper` (model "base") do precyzyjnej transkrypcji języka polskiego.
+-   **Parser matematyczny:** Model `mwiewior/bielik` uruchamiany przez Ollama do konwersji tekstu na wyrażenie matematyczne.
+-   **Interfejs użytkownika:** `Gradio` do stworzenia nowoczesnego interfejsu webowego dostępnego w przeglądarce.
 
-Instalacja
-----------
-1. Sklonuj repozytorium lub pobierz ZIP:
-   git clone https://github.com/mateusz-juszczak/voice-calculator-whisper-bielik.git
-   cd bielik-voice-calculator
+## Wymagania
 
-2. Zainstaluj potrzebne biblioteki:
-   pip install -r requirements.txt
+-   Python 3.10 – 3.12
+-   Windows / Linux / macOS
+-   Mikrofon
+-   Nowoczesna przeglądarka internetowa (np. Chrome, Firefox)
+-   Minimum 8 GB RAM (zalecane do płynnego działania modeli AI)
 
-Instalacja modelu Bielik
-------------------------
-1. Zainstaluj Ollama: https://ollama.com
-   Sprawdź:
-   ollama --version
+## Instalacja
 
-2. Uruchom serwer:
-   ollama serve
+1.  Sklonuj repozytorium lub pobierz pliki ZIP:
+    ```bash
+    git clone https://github.com/mateusz-juszczak/voice-calculator-whisper-bielik.git
+    cd voice-calculator-whisper-bielik
+    ```
 
-3. Pobierz model Bielik:
-   ollama pull mwiewior/bielik
+2.  Zainstaluj wymagane biblioteki Python. Zaleca się utworzenie wirtualnego środowiska.
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Jeśli plik `requirements.txt` nie istnieje, zainstalaj pakiety ręcznie:*
+    ```bash
+    pip install gradio ollama faster-whisper numpy
+    ```
+    *(Uwaga: `faster-whisper` może wymagać dodatkowych zależności jak `torch` i `ctranslate2`, które `pip` powinien zainstalować automatycznie).*
 
-4. Test:
-   ollama run mwiewior/bielik
-   Jeśli model odpowiada po polsku – gotowe.
+## Instalacja modelu Bielik (przez Ollama)
 
-Uruchomienie aplikacji
-----------------------
+1.  Zainstaluj **Ollama** ze strony: [https://ollama.com](https://ollama.com)
+    Po instalacji sprawdź, czy polecenie działa w terminalu:
+    ```bash
+    ollama --version
+    ```
+
+2.  Uruchom serwer Ollama. W nowym oknie terminala wpisz:
+    ```bash
+    ollama serve
+    ```
+    **Nie zamykaj tego okna**, serwer musi działać w tle.
+
+3.  Pobierz model `bielik`:
+    ```bash
+    ollama pull mwiewior/bielik
+    ```
+
+4.  Sprawdź, czy model działa poprawnie:
+    ```bash
+    ollama run mwiewior/bielik
+    ```
+    Zadaj pytanie po polsku. Jeśli model odpowiada, wszystko jest gotowe.
+
+## Uruchomienie aplikacji
+
+W głównym folderze projektu uruchom skrypt:
+
+```bash
 python program.py
-
-Przykład użycia
----------------
-1. Wybierz mikrofon z listy i kliknij 'Zatwierdź urządzenie
-2. Naciśnij zielony przycisk i wypowiedz działanie matematyczne, np. "dwa do potęgi trzeciej plus pierwiastek z dziewięciu"
-3. Kliknij STOP, aby obliczyć wynik", przykładowy wynik 11
-
-Najczęstsze problemy
--------------------
-- Connection refused: sprawdź, czy działa `ollama serve`
-- Model nie znaleziony: wykonaj `ollama pull mwiewior/bielik`
-- Brak modułu ollama: pip install ollama
-- Brak dźwięku: sprawdź mikrofon w ustawieniach aplikacji
-
-Licencja
---------
-Model Bielik: osobna licencja autora (pobierany lokalnie przez Ollama)

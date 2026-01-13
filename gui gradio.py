@@ -32,7 +32,7 @@ def calculate_safe(expression: str):
 WHISPER_MODEL_NAME = "base"
 OLLAMA_MODEL_NAME = "mwiewior/bielik"
 SYSTEM_PROMPT = (
-    "Jesteś matematycznym parserem. Zamień polski tekst na wyrażenie matematyczne w Pythonie. "
+    "Jesteś matematycznym parserem. Zamień polski tekst na wyrażenie matematyczne w Pythonie. W przypadku operacji pierwiastka(nie wstawiaj math.sqrt, tylko samo sqrt()) "
     "Zasady: 1. Zwróć WYŁĄCZNIE liczby i operatory (np. 2+2). 2. NIE używaj słów ani znaku '='."
 )
 
@@ -191,4 +191,4 @@ with gr.Blocks(theme=green_theme, css=custom_css, title="Kalkulator głosowy") a
     btn_clear.click(lambda: ("", ""), None, [history_state, log_area])
 
 if __name__ == "__main__":
-    demo.launch(share=True)
+    demo.launch(share=False)

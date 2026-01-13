@@ -30,9 +30,11 @@ def normalize_text(text):
 def compare_math(calc, target):
     """Porównuje liczby z tolerancją."""
     try:
-        c_val = float(str(calc).replace(',', '.'))
-        t_val = float(str(target).replace(',', '.'))
-        return abs(c_val - t_val) < 0.01
+        c_str = str(calc).replace(',', '.').strip()
+        t_str = str(target).replace(',', '.').strip()
+        c_val = float(c_str)
+        t_val = float(t_str)
+        return abs(c_val - t_val) <= 0.01
     except:
         return False
 

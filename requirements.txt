@@ -1,9 +1,21 @@
-openai-whisper==20240930
-torch
-scikit-learn
-numpy
-pandas
+# --- AI & Transkrypcja (CPU) ---
+faster-whisper
 ollama
-requests
-tarfile
+torch --index-url https://download.pytorch.org/whl/cpu
 
+# --- Audio (Nagrywanie i pliki) ---
+sounddevice
+soundfile
+numpy
+
+# --- Dane i Narzędzia ---
+pandas
+tabulate
+python-dotenv
+keyboard
+tqdm
+
+# --- Google Drive API ---
+google-api-python-client
+google-auth-oauthlib
+google-auth-httplib2

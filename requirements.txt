@@ -9,6 +9,7 @@ soundfile
 numpy
 
 # --- Dane i Narzędzia ---
+gradio
 pandas
 tabulate
 python-dotenv
@@ -19,3 +20,7 @@ tqdm
 google-api-python-client
 google-auth-oauthlib
 google-auth-httplib2
+
+
+
+

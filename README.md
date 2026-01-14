@@ -63,3 +63,6 @@ W głównym folderze projektu uruchom skrypt:
 
 ```bash
 python program.py
+```
+
+Żeby zobaczyć panel GUI, należy użyć linka do strony, który pojawi się w konsoli Python po uruchomieniu skryptu

@@ -62,7 +62,7 @@ Kalkulator głosowy w Pythonie, wykorzystujący nowoczesne narzędzia AI. Posiad
 W głównym folderze projektu uruchom skrypt:
 
 ```bash
-python program.py
+python gui gradio.py
 ```
 
 Żeby zobaczyć panel GUI, należy użyć linka do strony, który pojawi się w konsoli Python po uruchomieniu skryptu

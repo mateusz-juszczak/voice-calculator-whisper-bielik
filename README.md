@@ -1,6 +1,6 @@
 # Bielik Voice Calculator
 
-Prosty, ale potężny kalkulator głosowy w Pythonie, wykorzystujący nowoczesne narzędzia AI. Posiada przejrzysty interfejs webowy zbudowany w Gradio.
+Kalkulator głosowy w Pythonie, wykorzystujący nowoczesne narzędzia AI. Posiada przejrzysty interfejs webowy zbudowany w Gradio.
 
 -   **Rozpoznawanie mowy:** `faster-whisper` (model "base") do precyzyjnej transkrypcji języka polskiego.
 -   **Parser matematyczny:** Model `mwiewior/bielik` uruchamiany przez Ollama do konwersji tekstu na wyrażenie matematyczne.

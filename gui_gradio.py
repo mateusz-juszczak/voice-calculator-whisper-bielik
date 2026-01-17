@@ -9,102 +9,122 @@ from faster_whisper import WhisperModel
 import program
 
 def render_result(result_text):
-    """Pomocnicza funkcja do kolorowania wyniku HTML"""
-    color = "#bdc3c7"  # Domyślny szary
+    """
+    Funkcja generująca HTML.
+    Używamy zmiennych CSS (var(--...)), aby tło i tekst
+    same dostosowywały się do trybu Light/Dark.
+    """
+    # Kolor ramki i tekstu wyniku (zielony/czerwony/szary)
+    color = "var(--neutral-400)" # Domyślny szary (z palety Gradio)
+    
     if result_text not in ["---", "BŁĄD", "ERROR"]:
-        color = "#27ae60"  # Zielony (sukces)
+        # Sukces - używamy intensywnej zieleni
+        color = "#2ecc71"
     elif result_text in ["BŁĄD", "ERROR"]:
-        color = "#c0392b"  # Czerwony (błąd)
+        # Błąd - czerwień
+        color = "#e74c3c"
 
+    # Zauważ użycie var(--background-fill-secondary) - to klucz do poprawnego działania w obu trybach
     return f"""
-        <div style='font-size: 60px; font-weight: 900; color: {color}; 
-        background: white; border: 4px solid {color}; padding: 30px; 
-        border-radius: 20px; text-align: center;'>{result_text}</div>
+        <div style='
+            font-size: 60px; 
+            font-weight: 900; 
+            color: {color}; 
+            background: var(--background-fill-secondary); 
+            border: 4px solid {color}; 
+            padding: 30px; 
+            border-radius: 20px; 
+            text-align: center;
+            transition: all 0.3s ease;
+        '>{result_text}</div>
     """
 
 def process_voice(audio_path, history):
-    """Funkcja łącząca przyciski Gradio z backendem program.py"""
     if audio_path is None:
         return "Brak nagrania", "---", render_result("---"), history
 
-    # 1. Wywołanie logiki z pliku program.py
     text_whisper, text_math, result = program.process_audio_pipeline(audio_path)
 
-    # 2. Aktualizacja historii
     if result not in ["BŁĄD", "ERROR", "---"]:
         timestamp = time.strftime("%H:%M:%S")
-        entry = f"[{timestamp}]\n: {text_whisper}\n: {text_math} = {result}\n{'-'*30}\n"
+        entry = f"[{timestamp}]\nWHISPER: {text_whisper}\nBIELIK: {text_math} = {result}\n{'-'*30}\n"
         history = entry + history
 
-    # 3. Zwrócenie wyników do UI
     return text_whisper, text_math, render_result(result), history
+
+# ======================================================
+# CSS - ELASTYCZNY (Dla obu motywów)
+# ======================================================
+custom_css = """
+/* Styl dla kontenera instrukcji */
+.instruction-box {
+    border-left: 5px solid #27ae60 !important;
+    background-color: var(--background-fill-secondary) !important;
+    padding: 15px !important;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    color: var(--body-text-color) !important;
+}
+
+/* Okno mikrofonu */
+#mic_input { 
+    border: 2px solid #27ae60 !important; 
+    border-radius: 15px !important;
+    background-color: var(--background-fill-primary) !important;
+}
+
+/* Przycisk Oblicz - gradient zawsze wygląda dobrze */
+#calc_btn { 
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%) !important; 
+    color: white !important; 
+    font-size: 20px !important; 
+    font-weight: bold !important; 
+    height: 70px !important; 
+    border-radius: 15px !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(39,174,96,0.3) !important;
+}
+
+/* Historia - Terminal */
+/* Tutaj wymuszamy styl "matrixa" niezależnie od motywu, bo to terminal */
+#log_box textarea { 
+    background-color: #050a06 !important; 
+    color: #4ade80 !important; 
+    font-family: 'Consolas', monospace !important; 
+    border: 1px solid #27ae60 !important;
+}
+
+/* Drobne poprawki dla czytelności */
+.gradio-container {
+    font-family: 'Segoe UI', sans-serif;
+}
+"""
 
 # ======================================================
 # INTERFEJS GRADIO
 # ======================================================
-green_theme = gr.themes.Soft(
+# Używamy motywu 'Soft', który świetnie obsługuje przełączanie Dark/Light
+theme = gr.themes.Soft(
     primary_hue="green",
     neutral_hue="slate",
-).set(
-    block_background_fill="white",
-    panel_background_fill="white",
-    block_border_width="1px",
 )
 
-custom_css = """
-/* Usuwa szare tło z kontenerów typu 'Group' i 'Box' */
-.gradio-container { background-color: white !important; }
-.gr-box, .gr-group, .gr-panel { background: white !important; border: none !important; }
-
-/* Okno mikrofonu */
-#mic_input { 
-    border: 3px solid #27ae60 !important; 
-    background-color: #f1f9f5 !important; 
-    border-radius: 15px !important;
-}
-
-/* Przycisk Oblicz */
-#calc_btn { 
-    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%) !important; 
-    color: white !important; font-size: 20px !important; font-weight: bold !important; 
-    height: 70px !important; border-radius: 15px !important;
-    box-shadow: 0 4px 15px rgba(39,174,96,0.2) !important;
-}
-
-/* Historia - Terminal */
-#log_box textarea { 
-    background-color: #0d1a10 !important; 
-    color: #4ade80 !important; 
-    font-family: 'Consolas', monospace !important; 
-    border: 2px solid #27ae60 !important;
-}
-
-/* Instrukcja */
-.instruction-box {
-    border-left: 5px solid #27ae60 !important;
-    background-color: #f1f9f5 !important;
-    padding: 15px !important;
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
-"""
-
-with gr.Blocks(theme=green_theme, css=custom_css, title="Kalkulator głosowy") as demo:
+with gr.Blocks(theme=theme, css=custom_css, title="Kalkulator głosowy") as demo:
     history_state = gr.State("")
     
     gr.Markdown("# Kalkulator głosowy")
     gr.Markdown("z użyciem narzędzi OpenAI Whisper i Bielik.AI")
 
     with gr.Row():
-        # --- PANEL LEWY (60%) ---
+        # --- PANEL LEWY ---
         with gr.Column(scale=60):
             # Instrukcja
             with gr.Column(elem_classes="instruction-box"):
                 gr.Markdown("""
                 ### INSTRUKCJA OBSŁUGI
-                1. Kliknij ikonę **mikrofonu** i wypowiedz działanie (np. *"250 razy 4 dodać 6"*).
+                1. Kliknij ikonę **mikrofonu** i wypowiedz działanie.
                 2. Kliknij ikonę **STOP**, aby zakończyć nagrywanie.
-                3. Naciśnij zielony przycisk **OBLICZ WYNIK**, aby otrzymać odpowiedź.
+                3. Naciśnij zielony przycisk **OBLICZ WYNIK**.
                 """)
 
             audio_input = gr.Audio(
@@ -121,13 +141,11 @@ with gr.Blocks(theme=green_theme, css=custom_css, title="Kalkulator głosowy") a
                 out_math = gr.Textbox(label="FORMUŁA (Bielik):", interactive=False)
 
             gr.Markdown("### WYNIK KOŃCOWY:")
-            out_res = gr.HTML("""
-                <div style='font-size: 60px; font-weight: 900; color: #bdc3c7; 
-                background: white; border: 4px solid #bdc3c7; padding: 30px; 
-                border-radius: 20px; text-align: center;'>---</div>
-            """)
+            
+            # Początkowy stan HTML - używa zmiennych CSS
+            out_res = gr.HTML(render_result("---"))
 
-        # --- PANEL PRAWY (40%) ---
+        # --- PANEL PRAWY ---
         with gr.Column(scale=40):
             gr.Markdown("### HISTORIA OPERACJI")
             log_area = gr.TextArea(
@@ -135,7 +153,7 @@ with gr.Blocks(theme=green_theme, css=custom_css, title="Kalkulator głosowy") a
                 interactive=False, 
                 lines=30, 
                 elem_id="log_box",
-                placeholder="Historia operacji..."
+                placeholder="Terminal logów..."
             )
             btn_clear = gr.Button("Wyczyść historię", variant="secondary")
 
@@ -153,4 +171,5 @@ with gr.Blocks(theme=green_theme, css=custom_css, title="Kalkulator głosowy") a
     btn_clear.click(lambda: ("", ""), None, [history_state, log_area])
 
 if __name__ == "__main__":
+    program.warmup()
     demo.launch(share=True)

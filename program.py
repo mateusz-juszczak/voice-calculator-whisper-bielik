@@ -4,6 +4,7 @@ import ollama
 from faster_whisper import WhisperModel
 from dotenv import load_dotenv
 import config
+import re
 
 # Ładowanie zmiennych środowiskowych
 load_dotenv()
@@ -35,12 +36,20 @@ def remove_trailing_dot(text: str) -> str:
 def clean_math_string(text: str) -> str:
     """Czyści surową odpowiedź z modelu Bielik (usuwa tagi markdown, zbędne opisy)."""
     # Usuwanie popularnych "śmieci" z LLM
+    text = re.sub(r'<(.*?)>', '', text)
     text = text.replace("`", "").replace("=", "")
     text = text.replace("wynik", "").replace("Result", "").replace("wyrażenie", "")
     text = text.replace("Oblicz", "").replace("to", "")
+
     
     # Bierzemy tylko pierwszą linię (często LLM dopisuje coś po wzorze)
     return text.strip().split('\n')[0]
+
+def normalize_roots(text: str) -> str:
+    text = text.lower()
+    text = re.sub(r'√\s*(\d+(\.\d+)?)', r'sqrt(\1)', text)
+    text = re.sub(r'pierwiastek z (\d+(\.\d+)?)', r'sqrt(\1)', text)
+    return text
 
 def calculate_safe(expression: str):
     """Bezpieczne obliczanie wyrażenia matematycznego (eval)."""
@@ -115,7 +124,7 @@ def process_audio_pipeline(audio_path: str):
             options=config.BIELIK_CONFIG["options"]
         )
         math_expr = response['response'].strip()
-        math_expr_clean = clean_math_string(math_expr)
+        math_expr_clean = normalize_roots(clean_math_string(math_expr))
 
         # KROK 3: Obliczenia
         result = calculate_safe(math_expr_clean)
@@ -125,3 +134,14 @@ def process_audio_pipeline(audio_path: str):
     except Exception as e:
         print(f"[PIPELINE ERROR] {e}")
         return f"Błąd przetwarzania: {str(e)}", "ERROR", "ERROR"
+    
+def warmup():
+    if os.path.exists("warmup.wav"):
+        list(whisper_model.transcribe("warmup.wav")[0])
+    ollama.generate(
+            model=config.BIELIK_CONFIG["model_name"],
+            system=config.SYSTEM_PROMPT,
+            prompt=f"Tekst: 2+2\nWzór:",
+            options=config.BIELIK_CONFIG["options"]
+        )
+    print("[BACKEND] Rozgrzano modele")

@@ -18,13 +18,10 @@ def render_result(result_text):
     color = "var(--neutral-400)" # Domyślny szary (z palety Gradio)
     
     if result_text not in ["---", "BŁĄD", "ERROR"]:
-        # Sukces - używamy intensywnej zieleni
         color = "#2ecc71"
     elif result_text in ["BŁĄD", "ERROR"]:
-        # Błąd - czerwień
         color = "#e74c3c"
 
-    # Zauważ użycie var(--background-fill-secondary) - to klucz do poprawnego działania w obu trybach
     return f"""
         <div style='
             font-size: 60px; 
@@ -103,7 +100,7 @@ custom_css = """
 # ======================================================
 # INTERFEJS GRADIO
 # ======================================================
-# Używamy motywu 'Soft', który świetnie obsługuje przełączanie Dark/Light
+# Używamy motywu 'Soft', który dobrze obsługuje przełączanie Dark/Light
 theme = gr.themes.Soft(
     primary_hue="green",
     neutral_hue="slate",

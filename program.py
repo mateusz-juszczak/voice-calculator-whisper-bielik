@@ -36,6 +36,7 @@ def remove_trailing_dot(text: str) -> str:
 def clean_math_string(text: str) -> str:
     """Czyści surową odpowiedź z modelu Bielik (usuwa tagi markdown, zbędne opisy)."""
     # Usuwanie popularnych "śmieci" z LLM
+    text = text.lower()
     text = re.sub(r'<(.*?)>', '', text)
     text = text.replace("`", "").replace("=", "")
     text = text.replace("wynik", "").replace("Result", "").replace("wyrażenie", "")
@@ -68,6 +69,9 @@ def calculate_safe(expression: str):
         
         # 2. Zamiana operatorów "ludzkich" na Pythonowe (na wszelki wypadek)
         expr_clean = expr_clean.replace("^", "**").replace(",", ".")
+        
+        expr_clean = re.sub(r'√\s*(\d+(\.\d+)?)', r'sqrt(\1)', expr_clean)
+        expr_clean = re.sub(r'pierwiastek z (\d+(\.\d+)?)', r'sqrt(\1)', expr_clean)
         
         # 3. Ewaluacja
         code = compile(expr_clean, "<string>", "eval")
@@ -124,7 +128,7 @@ def process_audio_pipeline(audio_path: str):
             options=config.BIELIK_CONFIG["options"]
         )
         math_expr = response['response'].strip()
-        math_expr_clean = normalize_roots(clean_math_string(math_expr))
+        math_expr_clean = clean_math_string(math_expr)
 
         # KROK 3: Obliczenia
         result = calculate_safe(math_expr_clean)

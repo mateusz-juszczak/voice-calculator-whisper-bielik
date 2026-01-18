@@ -23,6 +23,7 @@ eval/
 *.mp3
 *.flac
 *.ogg
+!warmup.wav
 
 # Experiment outputs
 results/

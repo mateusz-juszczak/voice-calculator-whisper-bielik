@@ -5,6 +5,8 @@ from faster_whisper import WhisperModel
 from dotenv import load_dotenv
 import config
 import re
+import time
+import csv
 
 # Ładowanie zmiennych środowiskowych
 load_dotenv()
@@ -139,13 +141,69 @@ def process_audio_pipeline(audio_path: str):
         print(f"[PIPELINE ERROR] {e}")
         return f"Błąd przetwarzania: {str(e)}", "ERROR", "ERROR"
     
-def warmup():
+def process_with_timing(audio_path, label):
+    metrics = {
+        "label": label,
+        "whisper_time": 0,
+        "ollama_time": 0,
+        "total_time": 0
+    }
+    
+    start_total = time.perf_counter()
+    
+    # Whisper
+    t0 = time.perf_counter()
+    segments, _ = whisper_model.transcribe(audio_path, language="pl")
+    list(segments) 
+    metrics["whisper_time"] = round(time.perf_counter() - t0, 4)
+    
+    # Ollama
+    t0 = time.perf_counter()
+    ollama.generate(
+        model=config.BIELIK_CONFIG["model_name"],
+        prompt="Tekst: 2+2\nWzór:",
+        options=config.BIELIK_CONFIG["options"]
+    )
+    metrics["ollama_time"] = round(time.perf_counter() - t0, 4)
+    
+    metrics["total_time"] = round(time.perf_counter() - start_total, 4)
+    return metrics
+
+def warmup(n_iterations=2):
+    print(f"[START] Rozgrzewanie systemu ({n_iterations} iteracje)...")
+    for i in range(n_iterations):
+        # 1. Rozgrzewka Whispera
+        segments, _ = whisper_model.transcribe("warmup.wav")
+        list(segments)
+        
+        # 2. Rozgrzewka Ollamy
+        ollama.generate(model="bielik", prompt="2+2")
+        
+        print(f"[WARMUP] Ukończono przebieg {i+1}/{n_iterations}")
+    print("[READY] System gotowy do pracy.")
+
+def run_benchmark(test_audio, output_csv="benchmark_results.csv"):
+    results = []
+
+    results.append(process_with_timing(test_audio, "COLD"))
+
     if os.path.exists("warmup.wav"):
         list(whisper_model.transcribe("warmup.wav")[0])
-    ollama.generate(
-            model=config.BIELIK_CONFIG["model_name"],
-            system=config.SYSTEM_PROMPT,
-            prompt=f"Tekst: 2+2\nWzór:",
-            options=config.BIELIK_CONFIG["options"]
-        )
-    print("[BACKEND] Rozgrzano modele")
+    ollama.generate(model=config.BIELIK_CONFIG["model_name"], prompt="warmup")
+
+    for i in range(1, 6):
+        results.append(process_with_timing(test_audio, f"WARM_{i}"))
+
+    with open(output_csv, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=results[0].keys())
+        writer.writeheader()
+        writer.writerows(results)
+    
+    print(f"Benchmark zapisany w {output_csv}")
+
+# if __name__ == "__main__":
+#     AUDIO_FILE = "warmup.wav" 
+#     if os.path.exists(AUDIO_FILE):
+#         run_benchmark(AUDIO_FILE)
+#     else:
+#         print("Brak pliku audio do testów.")

@@ -169,4 +169,4 @@ with gr.Blocks(theme=theme, css=custom_css, title="Kalkulator głosowy") as demo
 
 if __name__ == "__main__":
     program.warmup()
-    demo.launch(share=True)
+    demo.launch(share=False)

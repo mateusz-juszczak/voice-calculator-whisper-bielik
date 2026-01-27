@@ -169,7 +169,7 @@ def process_with_timing(audio_path, label):
     metrics["total_time"] = round(time.perf_counter() - start_total, 4)
     return metrics
 
-def warmup(n_iterations=2):
+def warmup(n_iterations=3):
     print(f"[START] Rozgrzewanie systemu ({n_iterations} iteracje)...")
     for i in range(n_iterations):
         # 1. Rozgrzewka Whispera
@@ -177,7 +177,7 @@ def warmup(n_iterations=2):
         list(segments)
         
         # 2. Rozgrzewka Ollamy
-        ollama.generate(model="bielik", prompt="2+2")
+        ollama.generate(model=config.BIELIK_CONFIG["model_name"], prompt="2+2")
         
         print(f"[WARMUP] Ukończono przebieg {i+1}/{n_iterations}")
     print("[READY] System gotowy do pracy.")
@@ -189,7 +189,7 @@ def run_benchmark(test_audio, output_csv="benchmark_results.csv"):
 
     if os.path.exists("warmup.wav"):
         list(whisper_model.transcribe("warmup.wav")[0])
-    ollama.generate(model=config.BIELIK_CONFIG["model_name"], prompt="warmup")
+    ollama.generate(model=config.BIELIK_CONFIG["model_name"], prompt="2+2")
 
     for i in range(1, 6):
         results.append(process_with_timing(test_audio, f"WARM_{i}"))

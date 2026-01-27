@@ -13,7 +13,7 @@ WHISPER_CONFIG = {
 
 
 BIELIK_CONFIG = {
-    "model_name": "mwiewior/bielik",    
+    "model_name": "mwiewior/bielik:latest",    
     "options": {
         "temperature": 0.0,  # 0.0 = Model jest deterministyczny (nie zmyśla)
         "num_predict": 50,  # Maksymalna długość odpowiedzi (tokens)

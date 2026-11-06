@@ -1,68 +1,102 @@
-# Bielik Voice Calculator
+# Voice Calculator – AI-Powered Speech Calculator
 
-Kalkulator głosowy w Pythonie, wykorzystujący nowoczesne narzędzia AI. Posiada przejrzysty interfejs webowy zbudowany w Gradio.
+A Python-based voice calculator powered by modern AI tools. It features a clean and intuitive web interface built with Gradio.
 
--   **Rozpoznawanie mowy:** `faster-whisper` (model "base") do precyzyjnej transkrypcji języka polskiego.
--   **Parser matematyczny:** Model `mwiewior/bielik` uruchamiany przez Ollama do konwersji tekstu na wyrażenie matematyczne.
--   **Interfejs użytkownika:** `Gradio` do stworzenia nowoczesnego interfejsu webowego dostępnego w przeglądarce.
+- **Speech Recognition:** `faster-whisper` (base model) for accurate Polish speech transcription.
+- **Mathematical Parser:** The `mwiewior/bielik` model, running locally through Ollama, converts natural language into mathematical expressions.
+- **User Interface:** Gradio provides a modern, browser-based web interface.
 
-## Wymagania
+This project was developed as part of the Speech Technology course as a graded university assignment.
 
--   Python 3.10 – 3.12
--   Windows / Linux / macOS
--   Mikrofon
--   Nowoczesna przeglądarka internetowa (np. Chrome, Firefox)
--   Minimum 8 GB RAM (zalecane do płynnego działania modeli AI)
+## Authors
 
-## Instalacja
+- Oliwia Chmura
+- Mateusz Juszczak
+- Henryk Kosała
 
-1.  Sklonuj repozytorium lub pobierz pliki ZIP:
-    ```bash
-    git clone https://github.com/mateusz-juszczak/voice-calculator-whisper-bielik.git
-    cd voice-calculator-whisper-bielik
-    ```
+## Requirements
 
-2.  Zainstaluj wymagane biblioteki Python. Zaleca się utworzenie wirtualnego środowiska.
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Jeśli plik `requirements.txt` nie istnieje, zainstalaj pakiety ręcznie:*
-    ```bash
-    pip install gradio ollama faster-whisper numpy
-    ```
-    *(Uwaga: `faster-whisper` może wymagać dodatkowych zależności jak `torch` i `ctranslate2`, które `pip` powinien zainstalować automatycznie).*
+- Python 3.10–3.12
+- Windows / Linux / macOS
+- Microphone
+- Modern web browser (e.g. Chrome, Firefox)
+- At least 8 GB of RAM (recommended for smooth AI model performance)
 
-## Instalacja modelu Bielik (przez Ollama)
+## Installation
 
-1.  Zainstaluj **Ollama** ze strony: [https://ollama.com](https://ollama.com)
-    Po instalacji sprawdź, czy polecenie działa w terminalu:
-    ```bash
-    ollama --version
-    ```
+### 1. Clone the repository
 
-2.  Uruchom serwer Ollama. W nowym oknie terminala wpisz:
-    ```bash
-    ollama serve
-    ```
-    **Nie zamykaj tego okna**, serwer musi działać w tle.
+Clone the repository or download the ZIP archive:
 
-3.  Pobierz model `bielik`:
-    ```bash
-    ollama pull mwiewior/bielik
-    ```
+```bash
+git clone https://github.com/mateusz-juszczak/voice-calculator-whisper-bielik.git
+cd voice-calculator-whisper-bielik
+```
 
-4.  Sprawdź, czy model działa poprawnie:
-    ```bash
-    ollama run mwiewior/bielik
-    ```
-    Zadaj pytanie po polsku. Jeśli model odpowiada, wszystko jest gotowe.
+### 2. Install Python dependencies
 
-## Uruchomienie aplikacji
+It is recommended to create a virtual environment before installing the required packages.
 
-W głównym folderze projektu uruchom skrypt:
+```bash
+pip install -r requirements.txt
+```
+
+If the `requirements.txt` file is not available, install the dependencies manually:
+
+```bash
+pip install gradio ollama faster-whisper numpy
+```
+
+*Note: `faster-whisper` may require additional dependencies, such as `ctranslate2`, which should be installed automatically by pip.*
+
+## Installing the Bielik Model (via Ollama)
+
+### 1. Install Ollama
+
+Download and install **Ollama** from the official website:
+
+https://ollama.com
+
+After installation, verify that it works by running the following command in your terminal:
+
+```bash
+ollama --version
+```
+
+### 2. Start the Ollama server
+
+Open a new terminal window and run:
+
+```bash
+ollama serve
+```
+
+**Keep this terminal window open**, as the Ollama server must continue running in the background.
+
+### 3. Download the Bielik model
+
+Run the following command to download the model:
+
+```bash
+ollama pull mwiewior/bielik
+```
+
+### 4. Verify the model
+
+Check whether the model is working correctly:
+
+```bash
+ollama run mwiewior/bielik
+```
+
+Enter a question in Polish. If the model responds, the installation was successful.
+
+## Running the Application
+
+Navigate to the project's root directory and run:
 
 ```bash
 python gui_gradio.py
 ```
 
-Żeby zobaczyć panel GUI, należy użyć linka do strony, który pojawi się w konsoli Python po uruchomieniu skryptu
+To access the web interface, open the URL displayed in the Python console after the application starts.
